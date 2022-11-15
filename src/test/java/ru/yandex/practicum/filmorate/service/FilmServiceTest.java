@@ -21,7 +21,7 @@ class FilmServiceTest {
     }
     @Test
     @DisplayName("Проверка обновления фильма с не существующим id")
-    void updateFilm() {
+    void testUpdateFilm() {
         Film updated = ModelTestUtils.getFilm("updated name", "updated description",
                 LocalDate.of(2020,1,1),200);
         updated.setId(9999);

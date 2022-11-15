@@ -22,7 +22,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Проверка создания пользователя с пустым именем")
-    void createUser() {
+    void testCreateUser() {
         User emptyName = ModelTestUtils.getUser("friend@common.ru", "common", "",
                 LocalDate.of(2000, 8, 20));
         userService.createUser(emptyName);
@@ -31,7 +31,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Проверка обновления пользователя с не существующим id")
-    void updateUser() {
+    void testUpdateUser() {
         User updated = ModelTestUtils.getUser("updated@mail.ru", "updated","updated",
                 LocalDate.of(2005, 4, 17));
         updated.setId(9999);
