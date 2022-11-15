@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFoundException(NotFoundException exception) {
-        log.warn("[{}] {}", 404, exception.getMessage());
+        log.warn("Response code [{}] error message [{}]", 404, exception.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorMessage(404, exception.getMessage()));
@@ -25,7 +25,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException exception) {
-        log.warn("[{}] {}", 400, Objects.requireNonNull(exception.getFieldError()).getDefaultMessage());
+        log.warn("Поле {} не прошло валидацию.\n\tresponse code [{}] error message [{}]",
+                Objects.requireNonNull(exception.getFieldError()).getField(),
+                400,
+                Objects.requireNonNull(exception.getFieldError()).getDefaultMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorMessage(400,
