@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,12 +12,12 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class UserServiceTest {
-    private UserService userService;
+class InMemoryUserStorageTest {
+    private UserStorage userStorage;
 
     @BeforeEach
     public void userServiceInit() {
-        userService = new UserService();
+        userStorage = new InMemoryUserStorage();
     }
 
     @Test
@@ -25,18 +25,18 @@ class UserServiceTest {
     void testCreateUser() {
         User emptyName = ModelTestUtils.getUser("friend@common.ru", "common", "",
                 LocalDate.of(2000, 8, 20));
-        userService.createUser(emptyName);
+        userStorage.createUser(emptyName);
         assertEquals("common", emptyName.getName());
     }
 
     @Test
     @DisplayName("Проверка обновления пользователя с не существующим id")
     void testUpdateUser() {
-        User updated = ModelTestUtils.getUser("updated@mail.ru", "updated","updated",
+        User updated = ModelTestUtils.getUser("updated@mail.ru", "updated", "updated",
                 LocalDate.of(2005, 4, 17));
-        updated.setId(9999);
+        updated.setId(9999L);
         Exception exception = assertThrows(NotFoundException.class,
-                () -> userService.updateUser(updated));
+                () -> userStorage.updateUser(updated));
         assertEquals("Отсутствует пользователь с id=9999", exception.getMessage());
     }
 }

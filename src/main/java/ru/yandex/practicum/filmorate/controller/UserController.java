@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,23 +14,23 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final UserStorage userStorage;
 
     @GetMapping
     public List<User> getAllUsers() {
         log.debug("Получен GET запрос /users");
-        return userService.getAllUsers();
+        return userStorage.getAllUsers();
     }
 
     @PostMapping
     public User createUser(@RequestBody @Valid User user) {
         log.debug("Получен POST запрос /users \n\trequest body: {}", user);
-        return userService.createUser(user);
+        return userStorage.createUser(user);
     }
 
     @PutMapping
     public User updateFilm(@RequestBody @Valid User user) {
         log.debug("Получен PUT запрос /users \n\trequest body: {}", user);
-        return userService.updateUser(user);
+        return userStorage.updateUser(user);
     }
 }

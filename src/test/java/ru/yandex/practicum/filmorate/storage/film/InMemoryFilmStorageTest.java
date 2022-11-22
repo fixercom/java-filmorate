@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,24 +9,24 @@ import ru.yandex.practicum.filmorate.utils.ModelTestUtils;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-class FilmServiceTest {
-    private FilmService filmService;
+class InMemoryFilmStorageTest {
+    private FilmStorage filmStorage;
 
     @BeforeEach
     public void filmServiceInit() {
-        filmService = new FilmService();
+        filmStorage = new InMemoryFilmStorage();
     }
+
     @Test
     @DisplayName("Проверка обновления фильма с не существующим id")
     void testUpdateFilm() {
         Film updated = ModelTestUtils.getFilm("updated name", "updated description",
-                LocalDate.of(2020,1,1),200);
-        updated.setId(9999);
+                LocalDate.of(2020, 1, 1), 200);
+        updated.setId(9999L);
         Exception exception = assertThrows(NotFoundException.class,
-                () -> filmService.updateFilm(updated));
+                () -> filmStorage.updateFilm(updated));
         assertEquals("Отсутствует фильм с id=9999", exception.getMessage());
     }
 }
