@@ -1,50 +1,40 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class FilmService {
-    private long currentId;
-    private final HashMap<Long, Film> films;
+    private final FilmStorage filmStorage;
 
-    public FilmService() {
-        currentId = 0;
-        films = new HashMap<>();
+    public void addLikeToFilm(Long filmId, Long userId) {
+        Film film = filmStorage.getFilmById(filmId);
+        film.addUserIdWhoLiked(userId);
+        log.debug("OK[{}]: Лайк пользователя с id={} добавлен для фильма с id={}", 200, userId, filmId);
     }
 
-    public Film createFilm(Film film) {
-        film.setId(++currentId);
-        saveFilmToMemory(film);
-        log.debug("Фильм {} сохранен в памяти, присвоен id={}", film.getName(), film.getId());
-        return film;
-    }
-
-    public Film updateFilm(Film film) {
-        throwNotFoundExceptionIfIdDoesNotExist(film);
-        saveFilmToMemory(film);
-        log.debug("Фильм с id={} успешно обновлен", film.getId());
-        return film;
-    }
-
-    public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
-    }
-
-    private void throwNotFoundExceptionIfIdDoesNotExist(Film film) {
-        if (!(films.containsKey(film.getId()))) {
-            throw new NotFoundException("Отсутствует фильм с id=" + film.getId());
+    public void removeLikeFromFilm(Long filmId, Long userId) {
+        Film film = filmStorage.getFilmById(filmId);
+        if (!(film.removeUserIdWhoLiked(userId))) {
+            throw new NotFoundException("Пользователь с id=" + userId + " не существует");
         }
+        log.debug("OK[{}]: Лайк пользователя с id={} удален для фильма с id={}", 200, userId, filmId);
     }
 
-    private void saveFilmToMemory(Film film) {
-        films.put(film.getId(), film);
+    public List<Film> getTopFilms(Integer count) {
+        log.debug("OK[{}]: Топ фильмов с ограничением в {} шт. получен", 200, count);
+        return filmStorage.getAllFilms().stream()
+                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
