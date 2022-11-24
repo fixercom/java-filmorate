@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.annotation.DateAfterBirthdayMovie;
+import ru.yandex.practicum.filmorate.validate.annotation.DateAfterBirthdayMovie;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;

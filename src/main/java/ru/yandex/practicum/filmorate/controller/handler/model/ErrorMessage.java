@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.handler;
+package ru.yandex.practicum.filmorate.controller.handler.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
