@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.controller.handler.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@Setter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ErrorMessage {
-    private Integer statusCode;
-    private String message;
+    private final Integer statusCode;
+    private final String message;
 }

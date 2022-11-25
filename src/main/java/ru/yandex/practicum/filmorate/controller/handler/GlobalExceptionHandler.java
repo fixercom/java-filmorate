@@ -2,9 +2,9 @@ package ru.yandex.practicum.filmorate.controller.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.controller.handler.model.ErrorMessage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -16,23 +16,21 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleNotFoundException(NotFoundException exception) {
-        log.warn("Response code [{}] error message [{}]", 404, exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage(404, exception.getMessage()));
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage handleNotFoundException(NotFoundException exception) {
+        String message = exception.getMessage();
+        log.warn("NotFound[{}]: {}", 404, message);
+        return new ErrorMessage(404, message);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException exception) {
-        log.warn("Поле {} не прошло валидацию.\n\tresponse code [{}] error message [{}]",
-                Objects.requireNonNull(exception.getFieldError()).getField(),
-                400,
-                Objects.requireNonNull(exception.getFieldError()).getDefaultMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(400,
-                        Objects.requireNonNull(exception.getFieldError()).getDefaultMessage()));
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        String fieldName = Objects.requireNonNull(exception.getFieldError()).getField();
+        Object rejectedValue = Objects.requireNonNull(exception.getFieldError()).getRejectedValue();
+        String message = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
+        log.warn("NotValid[{}]: Поле '{}'='{}' не прошло валидацию по причине '{}'",
+                400, fieldName, rejectedValue, message);
+        return new ErrorMessage(400, message);
     }
 }
