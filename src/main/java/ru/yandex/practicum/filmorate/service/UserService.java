@@ -20,7 +20,7 @@ public class UserService {
         User friend = userStorage.getUserById(friendId);
         user.addFriendId(friendId);
         friend.addFriendId(userId);
-        log.debug("OK[{}]: Пользователь с id={} добавлен в друзья пользователя с id={}", 200, friendId, userId);
+        log.debug("Пользователь с id={} добавлен в друзья пользователя с id={}", friendId, userId);
     }
 
     public void removeFriendFromUser(Long userId, Long friendId) {
@@ -28,12 +28,12 @@ public class UserService {
         User friend = userStorage.getUserById(friendId);
         user.removeFriendId(friendId);
         friend.removeFriendId(userId);
-        log.debug("OK[{}]: Пользователь с id={} удален из друзей пользователя с id={}", 200, friendId, userId);
+        log.debug("Пользователь с id={} удален из друзей пользователя с id={}", friendId, userId);
     }
 
     public List<User> getAllFriends(Long userId) {
         User user = userStorage.getUserById(userId);
-        log.debug("OK[{}]: Список друзей пользователя с id={} получен", 200, userId);
+        log.debug("Список друзей пользователя с id={} получен", userId);
         return user.getFriendIds().stream()
                 .map(userStorage::getUserById)
                 .collect(Collectors.toList());
@@ -42,7 +42,7 @@ public class UserService {
     public List<User> getCommonFriends(Long userId, Long otherId) {
         User user = userStorage.getUserById(userId);
         User other = userStorage.getUserById(otherId);
-        log.debug("OK[{}]: Список общий друзей для пользователей с id={},{} получен", 200, userId, otherId);
+        log.debug("Список общий друзей для пользователей с id={},{} получен", userId, otherId);
         return user.getFriendIds().stream()
                 .filter(other.getFriendIds()::contains)
                 .map(userStorage::getUserById)

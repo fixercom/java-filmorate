@@ -19,7 +19,7 @@ public class FilmService {
     public void addLikeToFilm(Long filmId, Long userId) {
         Film film = filmStorage.getFilmById(filmId);
         film.addUserIdWhoLiked(userId);
-        log.debug("OK[{}]: Лайк пользователя с id={} добавлен для фильма с id={}", 200, userId, filmId);
+        log.debug("Лайк пользователя с id={} добавлен для фильма с id={}", userId, filmId);
     }
 
     public void removeLikeFromFilm(Long filmId, Long userId) {
@@ -27,11 +27,11 @@ public class FilmService {
         if (!(film.removeUserIdWhoLiked(userId))) {
             throw new NotFoundException("Пользователь с id=" + userId + " не существует");
         }
-        log.debug("OK[{}]: Лайк пользователя с id={} удален для фильма с id={}", 200, userId, filmId);
+        log.debug("Лайк пользователя с id={} удален для фильма с id={}", userId, filmId);
     }
 
     public List<Film> getTopFilms(Integer count) {
-        log.debug("OK[{}]: Топ фильмов с ограничением в {} шт. получен", 200, count);
+        log.debug("Топ фильмов с ограничением в {} шт. получен", count);
         return filmStorage.getAllFilms().stream()
                 .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
                 .limit(count)

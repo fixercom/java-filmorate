@@ -25,7 +25,7 @@ public class InMemoryUserStorage implements UserStorage {
         setDefaultNameIfEmptyOrNull(user);
         user.setId(++currentId);
         saveUserToMemory(user);
-        log.debug("OK[{}]: Пользователь сохранен в памяти, присвоен id={}", 200, user.getId());
+        log.debug("Пользователь сохранен в памяти, присвоен id={}", user.getId());
         return user;
     }
 
@@ -34,20 +34,20 @@ public class InMemoryUserStorage implements UserStorage {
         Long userId = user.getId();
         throwNotFoundExceptionIfIdDoesNotExist(userId);
         saveUserToMemory(user);
-        log.debug("OK[{}]: Пользователь с id={} обновлен", 200, userId);
+        log.debug("Пользователь с id={} обновлен", userId);
         return user;
     }
 
     @Override
     public List<User> getAllUsers() {
-        log.debug("OK[{}]: Список пользователей получен", 200);
+        log.debug("Список пользователей получен");
         return new ArrayList<>(users.values());
     }
 
     @Override
     public User getUserById(Long id) {
         throwNotFoundExceptionIfIdDoesNotExist(id);
-        log.debug("OK[{}]: Пользователь с id={} получен", 200, id);
+        log.debug("Пользователь с id={} получен", id);
         return users.get(id);
     }
 

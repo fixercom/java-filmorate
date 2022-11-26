@@ -24,7 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film createFilm(Film film) {
         film.setId(++currentId);
         saveFilmToMemory(film);
-        log.debug("OK[{}]: Фильм сохранен в памяти, присвоен id={}", 200, film.getId());
+        log.debug("Фильм сохранен в памяти, присвоен id={}", film.getId());
         return film;
     }
 
@@ -33,20 +33,20 @@ public class InMemoryFilmStorage implements FilmStorage {
         Long filmId = film.getId();
         throwNotFoundExceptionIfIdDoesNotExist(filmId);
         saveFilmToMemory(film);
-        log.debug("OK[{}]: Фильм с id={} обновлен", 200, filmId);
+        log.debug("Фильм с id={} обновлен", filmId);
         return film;
     }
 
     @Override
     public List<Film> getAllFilms() {
-        log.debug("OK[{}]: Список фильмов получен", 200);
+        log.debug("Список фильмов получен");
         return new ArrayList<>(films.values());
     }
 
     @Override
     public Film getFilmById(Long id) {
         throwNotFoundExceptionIfIdDoesNotExist(id);
-        log.debug("OK[{}]: Фильм с id={} получен", 200, id);
+        log.debug("Фильм с id={} получен", id);
         return films.get(id);
     }
 
