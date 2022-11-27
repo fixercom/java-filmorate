@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.validator;
+package ru.yandex.practicum.filmorate.validate;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
