@@ -2,61 +2,42 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.AbstractStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Component
 @Slf4j
-public class InMemoryFilmStorage implements FilmStorage {
-    private long currentId;
-    private final HashMap<Long, Film> films;
-
-    public InMemoryFilmStorage() {
-        currentId = 0;
-        films = new HashMap<>();
-    }
+public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
         film.setId(++currentId);
-        saveFilmToMemory(film);
+        saveToStorage(film);
         log.debug("Фильм сохранен в памяти, присвоен id={}", film.getId());
         return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        Long filmId = film.getId();
-        throwNotFoundExceptionIfIdDoesNotExist(filmId);
-        saveFilmToMemory(film);
-        log.debug("Фильм с id={} обновлен", filmId);
+        Long id = film.getId();
+        throwNotFoundExceptionIfIdDoesNotExist(id, "Отсутствует фильм с id=");
+        updateInStorage(id, film);
+        log.debug("Фильм с id={} обновлен", id);
         return film;
     }
 
     @Override
     public List<Film> getAllFilms() {
         log.debug("Список фильмов получен");
-        return new ArrayList<>(films.values());
+        return getAllElementsFromStorage();
     }
 
     @Override
     public Film getFilmById(Long id) {
-        throwNotFoundExceptionIfIdDoesNotExist(id);
+        throwNotFoundExceptionIfIdDoesNotExist(id, "Отсутствует фильм с id=");
         log.debug("Фильм с id={} получен", id);
-        return films.get(id);
-    }
-
-    private void throwNotFoundExceptionIfIdDoesNotExist(Long filmId) {
-        if (!(films.containsKey(filmId))) {
-            throw new NotFoundException("Отсутствует фильм с id=" + filmId);
-        }
-    }
-
-    private void saveFilmToMemory(Film film) {
-        films.put(film.getId(), film);
+        return loadFromStorage(id);
     }
 }
