@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validate.annotation.DateAfterBirthdayMovie;
 
@@ -7,10 +8,10 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
 public class Film {
     private Long id;
     @NotEmpty(message = "Название фильма не может быть пустым")
@@ -20,14 +21,8 @@ public class Film {
     @DateAfterBirthdayMovie(message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
     @Min(value = 0, message = "Продолжительность фильма должна быть положительной")
-    private long duration;
-    private Set<Long> userIdsWhoLiked = new HashSet<>();
-
-    public void addUserIdWhoLiked(Long userId){
-        userIdsWhoLiked.add(userId);
-    }
-
-    public boolean removeUserIdWhoLiked(Long userId){
-        return userIdsWhoLiked.remove(userId);
-    }
+    private Integer duration;
+    private MPA mpa;
+    private Set<Genre> genres;
+    private Set<Long> userIdsWhoLiked;
 }

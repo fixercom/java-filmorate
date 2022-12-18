@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -17,31 +16,30 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
-    @GetMapping
-    public List<User> getAllUsers(HttpServletRequest request) {
-        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        return userStorage.getAllUsers();
+    @PostMapping
+    public User createUser(@RequestBody @Valid User user, HttpServletRequest request) {
+        log.debug("Получен {} запрос {} тело запроса: {}", request.getMethod(), request.getRequestURI(), user);
+        return userService.createUser(user);
     }
 
     @GetMapping(value = "/{id}")
     public User getUserById(@PathVariable Long id, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        return userStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
-    @PostMapping
-    public User createUser(@RequestBody @Valid User user, HttpServletRequest request) {
-        log.debug("Получен {} запрос {} тело запроса: {}", request.getMethod(), request.getRequestURI(), user);
-        return userStorage.createUser(user);
+    @GetMapping
+    public List<User> getAllUsers(HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return userService.getAllUsers();
     }
 
     @PutMapping
     public User updateUser(@RequestBody @Valid User user, HttpServletRequest request) {
         log.debug("Получен {} запрос {} тело запроса: {}", request.getMethod(), request.getRequestURI(), user);
-        return userStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.controller.handler.model.ErrorMessage;
+import ru.yandex.practicum.filmorate.exception.AlreadyAcceptFriendException;
+import ru.yandex.practicum.filmorate.exception.AlreadyInviteFriendException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,5 +38,19 @@ public class GlobalExceptionHandler {
         log.warn("EXCEPTION/MethodArgumentNotValid[{}]: поле '{}'='{}' не прошло валидацию по причине '{}'",
                 400, fieldName, rejectedValue, message);
         return new ErrorMessage(400, message);
+    }
+
+    @ExceptionHandler(AlreadyInviteFriendException.class)
+    public ErrorMessage handleAlreadyFriendException(AlreadyInviteFriendException exception) {
+        String message = exception.getMessage();
+        log.warn("EXCEPTION/AlreadyFriendException[{}]: {}", 200, message);
+        return new ErrorMessage(200, message);
+    }
+
+    @ExceptionHandler(AlreadyAcceptFriendException.class)
+    public ErrorMessage handleAlreadyAcceptFriendException(AlreadyAcceptFriendException exception) {
+        String message = exception.getMessage();
+        log.warn("EXCEPTION/AlreadyAcceptFriendException[{}]: {}", 200, message);
+        return new ErrorMessage(200, message);
     }
 }
