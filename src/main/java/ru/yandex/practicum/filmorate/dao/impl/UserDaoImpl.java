@@ -42,7 +42,6 @@ public class UserDaoImpl implements UserDao {
         Long userId = new SimpleJdbcInsert(jdbcTemplate).withTableName("users")
                 .usingGeneratedKeyColumns("user_id")
                 .executeAndReturnKey(parametersForUsersTable).longValue();
-        log.debug("Пользователь добавлен в БД, присвоен id=" + userId);
         return getUserById(userId);
     }
 

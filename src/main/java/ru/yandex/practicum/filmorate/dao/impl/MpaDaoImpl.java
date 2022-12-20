@@ -32,7 +32,7 @@ public class MpaDaoImpl implements MpaDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("Не существует MPA с id=%d", id);
+            String errorMessage = String.format("В базе данных отсутствует MPA с id=%d", id);
             throw new NotFoundException(errorMessage);
         }
     }

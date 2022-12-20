@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.controller.handler.model.ErrorMessage;
 import ru.yandex.practicum.filmorate.exception.AlreadyAcceptFriendException;
 import ru.yandex.practicum.filmorate.exception.AlreadyInviteFriendException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFriendException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
@@ -17,12 +18,14 @@ import java.util.Objects;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    private static final String YELLOW_COLOR_LOG = "\033[33m";
+    private static final String ORIGINAL_COLOR_LOG = "\033[0m";
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage handleNotFoundException(NotFoundException exception) {
         String message = exception.getMessage();
-        log.warn("EXCEPTION/NotFound[{}]: {}", 404, message);
+        log.warn("{}NotFoundException: {} {}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(404, message);
     }
 
@@ -35,15 +38,15 @@ public class GlobalExceptionHandler {
         String fieldName = Objects.requireNonNull(exception.getFieldError()).getField();
         Object rejectedValue = Objects.requireNonNull(exception.getFieldError()).getRejectedValue();
         String message = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
-        log.warn("EXCEPTION/MethodArgumentNotValid[{}]: поле '{}'='{}' не прошло валидацию по причине '{}'",
-                400, fieldName, rejectedValue, message);
+        log.warn("{}MethodArgumentNotValidException: {}поле '{}'='{}' не прошло валидацию по причине '{}'",
+                YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, fieldName, rejectedValue, message);
         return new ErrorMessage(400, message);
     }
 
     @ExceptionHandler(AlreadyInviteFriendException.class)
     public ErrorMessage handleAlreadyFriendException(AlreadyInviteFriendException exception) {
         String message = exception.getMessage();
-        log.warn("EXCEPTION/AlreadyFriendException[{}]: {}", 200, message);
+        log.warn("{}AlreadyFriendException:{} {}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(200, message);
     }
 
@@ -51,6 +54,13 @@ public class GlobalExceptionHandler {
     public ErrorMessage handleAlreadyAcceptFriendException(AlreadyAcceptFriendException exception) {
         String message = exception.getMessage();
         log.warn("EXCEPTION/AlreadyAcceptFriendException[{}]: {}", 200, message);
+        return new ErrorMessage(200, message);
+    }
+
+    @ExceptionHandler(NotFriendException.class)
+    public ErrorMessage handleNotFriendException(NotFriendException exception) {
+        String message = exception.getMessage();
+        log.warn("{}NotFriendException: {}{}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(200, message);
     }
 }

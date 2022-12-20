@@ -25,7 +25,8 @@ public class GenreDaoImpl implements GenreDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("Не существует жанра с id=%d", id);
+
+            String errorMessage = String.format("В базе данных отсутствует жанр с id=%d", id);
             throw new NotFoundException(errorMessage);
         }
     }
