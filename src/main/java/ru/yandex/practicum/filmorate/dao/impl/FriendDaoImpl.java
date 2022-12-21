@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dao.FriendDao;
 import ru.yandex.practicum.filmorate.model.Friend;
 import ru.yandex.practicum.filmorate.model.enums.FriendStatus;
@@ -14,7 +13,6 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Transactional
 public class FriendDaoImpl implements FriendDao {
 
     private final JdbcTemplate jdbcTemplate;

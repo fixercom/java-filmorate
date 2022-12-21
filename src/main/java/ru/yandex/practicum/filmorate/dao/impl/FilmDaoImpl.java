@@ -6,7 +6,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
@@ -17,11 +16,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@Transactional
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
     @Qualifier("mpaDaoImpl")
@@ -80,7 +77,7 @@ public class FilmDaoImpl implements FilmDao {
     public Set<Genre> getGenresByFilmId(Long film_id) {
         String sql = "SELECT fg.genre_id, g.genre_name FROM film_genres AS fg" +
                 " JOIN genres AS g  ON fg.genre_id=g.genre_id WHERE fg.film_id=?";
-        return jdbcTemplate.queryForStream(sql, genreDao::mapRowToGenre, film_id).collect(Collectors.toSet());
+        return new HashSet<>(jdbcTemplate.query(sql, genreDao::mapRowToGenre, film_id));
     }
 
     @Override
