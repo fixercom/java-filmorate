@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -74,13 +73,6 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public Set<Genre> getGenresByFilmId(Long film_id) {
-        String sql = "SELECT fg.genre_id, g.genre_name FROM film_genres AS fg" +
-                " JOIN genres AS g  ON fg.genre_id=g.genre_id WHERE fg.film_id=?";
-        return new HashSet<>(jdbcTemplate.query(sql, genreDao::mapRowToGenre, film_id));
-    }
-
-    @Override
     public void deleteGenresForFilm(Long filmId) {
         String sql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
@@ -112,7 +104,7 @@ public class FilmDaoImpl implements FilmDao {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
                 .mpa(mpaDao.getMpaById(resultSet.getInt("mpa_id")))
-                .genres(getGenresByFilmId(resultSet.getLong("film_id")))
+                .genres(genreDao.getGenresByFilmId(resultSet.getLong("film_id")))
                 .userIdsWhoLiked(getUserIdsWhoLikedByFilmId(resultSet.getLong("film_id")))
                 .build();
     }

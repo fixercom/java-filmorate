@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.dao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public interface UserDao extends UserStorage {
@@ -19,6 +17,4 @@ public interface UserDao extends UserStorage {
     List<Long> getFriendIds(Long userId);
 
     List<User> getAllFriends(Long userId);
-
-    User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException;
 }
