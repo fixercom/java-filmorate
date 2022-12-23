@@ -5,11 +5,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.utils.ModelTestUtils;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InMemoryFilmStorageTest {
     private FilmStorage filmStorage;
@@ -22,8 +22,12 @@ class InMemoryFilmStorageTest {
     @Test
     @DisplayName("Проверка обновления фильма с не существующим id")
     void testUpdateFilm() {
-        Film updated = ModelTestUtils.getFilm("updated name", "updated description",
-                LocalDate.of(2020, 1, 1), 200);
+        Film updated = Film.builder()
+                .name("updated name")
+                .description("updated description")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(200)
+                .build();
         updated.setId(9999L);
         Exception exception = assertThrows(NotFoundException.class,
                 () -> filmStorage.updateFilm(updated));

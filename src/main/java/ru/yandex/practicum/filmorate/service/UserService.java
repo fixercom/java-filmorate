@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.exception.NotFriendException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,39 +15,78 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final UserStorage userStorage;
+    @Qualifier("userDaoImpl")
+    private final UserDao userDao;
+
+    public User createUser(User user) {
+        initNameIfEmptyOrNullValue(user);
+        User userFromDatabase = userDao.createUser(user);
+        log.debug("Пользователь сохранен в таблице users, присвоен id={}", userFromDatabase.getId());
+        return userFromDatabase;
+    }
+
+    public User getUserById(Long id) {
+        User userFromDatabase = userDao.getUserById(id);
+        log.debug("Из таблицы users считан пользователь с id={}: {}", userFromDatabase.getId(), userFromDatabase);
+        return userFromDatabase;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> allUsers = userDao.getAllUsers();
+        log.debug("Из таблицы users считаны все пользователи: {}", allUsers);
+        return allUsers;
+    }
+
+    public User updateUser(User user) {
+        User userFromDatabase = userDao.updateUser(user);
+        log.debug("Пользователь с id={} обновлен в таблице users", userFromDatabase.getId());
+        return userDao.updateUser(user);
+    }
 
     public void addFriendForUser(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.addFriendId(friendId);
-        friend.addFriendId(userId);
-        log.debug("Пользователь с id={} добавлен в друзья пользователя с id={}", friendId, userId);
+        userDao.getUserById(userId);    //throws UserNotFoundException
+        userDao.getUserById(friendId);
+        if (userDao.userHasActiveInvitationFromFriend(userId, friendId)) {
+            userDao.acceptFriendInvitation(userId, friendId);
+            log.debug("Пользователь с id={} принял приглашение дружбы от пользователя с id={}, " +
+                    "обновлена запись в таблице friends", friendId, userId);
+        } else {
+            log.debug("Пользователь с id={} отправил приглашение дружбы пользователю с id={}, " +
+                    "добавлена запись в таблицу friends", userId, friendId);
+            userDao.sendFriendInvitation(userId, friendId);
+        }
     }
 
     public void removeFriendFromUser(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.removeFriendId(friendId);
-        friend.removeFriendId(userId);
-        log.debug("Пользователь с id={} удален из друзей пользователя с id={}", friendId, userId);
+        if (userDao.deleteFriend(userId, friendId)) {
+            log.debug("Пользователь с id={} удален из друзей пользователя с id={}, " +
+                    "удалена запись в таблице friends", friendId, userId);
+        } else {
+            throw new NotFriendException("Пользователи не являются друзьями");
+        }
     }
 
     public List<User> getAllFriends(Long userId) {
-        User user = userStorage.getUserById(userId);
-        log.debug("Список друзей пользователя с id={} получен", userId);
-        return user.getFriendIds().stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+        List<User> allFriends = userDao.getAllFriends(userId);
+        log.debug("Список друзей пользователя с id={} считан из таблицы friends: {}", userId, allFriends);
+        return allFriends;
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
-        User user = userStorage.getUserById(userId);
-        User other = userStorage.getUserById(otherId);
-        log.debug("Список общий друзей для пользователей с id={},{} получен", userId, otherId);
-        return user.getFriendIds().stream()
-                .filter(other.getFriendIds()::contains)
-                .map(userStorage::getUserById)
+        List<Long> friendIdsForUser = userDao.getFriendIds(userId);
+        List<Long> friendIdsForOther = userDao.getFriendIds(otherId);
+        friendIdsForUser.retainAll(friendIdsForOther);
+        List<User> commonFriends = friendIdsForUser.stream()
+                .map(userDao::getUserById)
                 .collect(Collectors.toList());
+        log.debug("Из таблицы friends получен список общих друзей для пользователей с id={},{}: {}",
+                userId, otherId, commonFriends);
+        return commonFriends;
+    }
+
+    public void initNameIfEmptyOrNullValue(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.utils.ModelTestUtils;
 
 import java.time.LocalDate;
 
@@ -23,8 +22,12 @@ class InMemoryUserStorageTest {
     @Test
     @DisplayName("Проверка создания пользователя с пустым именем")
     void testCreateUser() {
-        User emptyName = ModelTestUtils.getUser("friend@common.ru", "common", "",
-                LocalDate.of(2000, 8, 20));
+        User emptyName = User.builder()
+                .email("friend@common.ru")
+                .login("common")
+                .name("")
+                .birthday(LocalDate.of(2000, 8, 20))
+                .build();
         userStorage.createUser(emptyName);
         assertEquals("common", emptyName.getName());
     }
@@ -32,8 +35,12 @@ class InMemoryUserStorageTest {
     @Test
     @DisplayName("Проверка обновления пользователя с не существующим id")
     void testUpdateUser() {
-        User updated = ModelTestUtils.getUser("updated@mail.ru", "updated", "updated",
-                LocalDate.of(2005, 4, 17));
+        User updated = User.builder()
+                .email("updated@mail.ru")
+                .login("updated")
+                .name("updated")
+                .birthday(LocalDate.of(2005, 4, 17))
+                .build();
         updated.setId(9999L);
         Exception exception = assertThrows(NotFoundException.class,
                 () -> userStorage.updateUser(updated));

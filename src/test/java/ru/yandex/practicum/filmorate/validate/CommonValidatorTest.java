@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.utils.ModelTestUtils;
 import ru.yandex.practicum.filmorate.utils.ValidatorTestUtils;
 
 import java.time.LocalDate;
@@ -17,17 +16,34 @@ public class CommonValidatorTest {
     @Test
     @DisplayName("Проверка валидации полей для Film")
     public void checkFilmModel() {
-        Film failName = ModelTestUtils.getFilm("", "description",
-                LocalDate.of(1900, 3, 25), 200);
-        Film failDescription = ModelTestUtils.getFilm("name", "really long description" +
-                        " description description description description description description description" +
-                        " description description description description description description description" +
-                        " description description description description description description description",
-                LocalDate.of(1900, 3, 25), 200);
-        Film failReleaseDate = ModelTestUtils.getFilm("name ", "description",
-                LocalDate.of(1890, 3, 25), 200);
-        Film failDuration = ModelTestUtils.getFilm("name", "description",
-                LocalDate.of(1900, 3, 25), -200);
+        Film failName = Film.builder()
+                .name("")
+                .description("description")
+                .releaseDate(LocalDate.of(1900, 3, 25))
+                .duration(200)
+                .build();
+        Film failDescription = Film.builder()
+                .name("name")
+                .description("really long description description description description description " +
+                        "description description description description description description description" +
+                        " description description description description description description description " +
+                        "description description description")
+                .releaseDate(LocalDate.of(1900, 3, 25))
+                .duration(200)
+                .build();
+        Film failReleaseDate = Film.builder()
+                .name("name")
+                .description("description")
+                .releaseDate(LocalDate.of(1890, 3, 25))
+                .duration(200)
+                .build();
+        Film failDuration = Film.builder()
+                .name("name")
+                .description("description")
+                .releaseDate(LocalDate.of(1900, 3, 25))
+                .duration(-200)
+                .build();
+
         assertAll(
                 () -> assertTrue(ValidatorTestUtils.modelHasErrorMessage(failName,
                         "Название фильма не может быть пустым"), "1"),
@@ -39,20 +55,38 @@ public class CommonValidatorTest {
                         "Продолжительность фильма должна быть положительной"), "4")
         );
     }
+
     @Test
     @DisplayName("Проверка валидации полей для User")
     public void checkUserModel() {
-        User failLogin1 = ModelTestUtils.getUser("yandex@mail.ru", "login login", "name",
-                LocalDate.of(2020, 8, 20));
-        User failLogin2 = ModelTestUtils.getUser("yandex@mail.ru", null, "name",
-                LocalDate.of(2020, 8, 20));
-        User failEmail = ModelTestUtils.getUser("mail.ru", "login", "name",
-                LocalDate.of(1980, 8, 20));
-        User failBirthday = ModelTestUtils.getUser( "test@mail.ru", "login", "name",
-                LocalDate.of(2446, 8, 20));
+        User failLogin1 = User.builder()
+                .email("yandex@mail.ru")
+                .login("login login")
+                .name("name")
+                .birthday(LocalDate.of(2020, 8, 20))
+                .build();
+        User failLogin2 = User.builder()
+                .email("yandex@mail.ru")
+                .login(null)
+                .name("name")
+                .birthday(LocalDate.of(2020, 8, 20))
+                .build();
+        User failEmail = User.builder()
+                .email("mail.ru")
+                .login("login")
+                .name("name")
+                .birthday(LocalDate.of(1980, 8, 20))
+                .build();
+        User failBirthday = User.builder()
+                .email("test@mail.ru")
+                .login("login")
+                .name("name")
+                .birthday(LocalDate.of(2446, 8, 20))
+                .build();
+
         assertAll(
                 () -> assertTrue(ValidatorTestUtils.modelHasErrorMessage(failLogin1,
-                        "Логин не может содержать пробелы"),
+                                "Логин не может содержать пробелы"),
                         "Валидатор содержит сообщение об ошибке:\n" +
                                 "\"Логин не может содержать пробелы\""),
                 () -> assertTrue(ValidatorTestUtils.modelHasErrorMessage(failLogin2,
@@ -60,11 +94,11 @@ public class CommonValidatorTest {
                         "Валидатор содержит сообщение об ошибке:\n" +
                                 "\"Логин не может быть пустым\""),
                 () -> assertTrue(ValidatorTestUtils.modelHasErrorMessage(failEmail,
-                        "Не верный формат e-mail"),
+                                "Не верный формат e-mail"),
                         "Валидатор содержит сообщение об ошибке:\n" +
                                 "\"Не верный формат e-mail\""),
                 () -> assertTrue(ValidatorTestUtils.modelHasErrorMessage(failBirthday,
-                        "Дата рождения не может быть в будущем"),
+                                "Дата рождения не может быть в будущем"),
                         "Валидатор содержит сообщение об ошибке:\n" +
                                 "\"Дата рождения не может быть в будущем\"")
         );

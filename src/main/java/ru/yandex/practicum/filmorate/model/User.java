@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -7,10 +8,10 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Data
+@Builder
 public class User {
     private Long id;
     @Email(message = "Не верный формат e-mail")
@@ -21,13 +22,5 @@ public class User {
     private String name;
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
-    private Set<Long> friendIds = new HashSet<>();
-
-    public void addFriendId(Long friendId){
-        friendIds.add(friendId);
-    }
-
-    public void removeFriendId(Long friendId){
-        friendIds.remove(friendId);
-    }
+    private List<Friend> friends;
 }
