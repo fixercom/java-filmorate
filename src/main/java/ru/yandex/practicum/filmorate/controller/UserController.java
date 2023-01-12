@@ -70,4 +70,10 @@ public class UserController {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return userService.getCommonFriends(id, otherId);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.debug("Получен запрос на удаление пользователя с ID {}", id);
+        userService.delete(id);
+    }
 }

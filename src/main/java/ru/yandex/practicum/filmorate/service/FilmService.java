@@ -82,4 +82,9 @@ public class FilmService {
         log.debug("Топ фильмов с ограничением в {} шт. получен", count);
         return topFilms;
     }
+
+    public void delete(long id) {
+        filmDao.delete(id);
+    }
+
 }

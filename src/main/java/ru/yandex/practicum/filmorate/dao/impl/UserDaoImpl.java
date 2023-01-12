@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FriendDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
@@ -59,6 +60,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User updateUser(User user) {
+        userCheck(user.getId());
         String sql = "UPDATE users SET email = ?, login = ?, user_name = ?, birthday =?";
         jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
         return getUserById(user.getId());
@@ -95,17 +97,21 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean deleteFriend(Long userId, Long friendId) {
+        userCheck(userId);
+        userCheck(friendId);
         String sql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
         return jdbcTemplate.update(sql, userId, friendId) > 0;
     }
 
     public List<User> getAllFriends(Long userId) {
+        userCheck(userId);
         String sql = "SELECT u.user_id, u.email, u.login, u.user_name, u.birthday" +
                 " FROM friends AS f JOIN users AS u ON f.friend_id = u.user_id WHERE  f.user_id  = ?";
         return jdbcTemplate.query(sql, this::mapRowToUser, userId);
     }
 
     public List<Long> getFriendIds(Long userId) {
+        userCheck(userId);
         String sql = "SELECT friend_id FROM friends WHERE user_id = ?";
         return jdbcTemplate.queryForList(sql, Long.class, userId);
     }
@@ -120,4 +126,20 @@ public class UserDaoImpl implements UserDao {
                 .friends(friendDao.getFriendsForUser(resultSet.getLong("user_id")))
                 .build();
     }
+
+    @Override
+    public void delete(long id) {
+        userCheck(id);
+        String sql = "DELETE FROM USERS WHERE USER_ID = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    private void userCheck(long userId) {
+        String checkUser = "select * from USERS where USER_ID = ?";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(checkUser, userId);
+        if (!rs.next()) {
+            throw new NotFoundException("User not found");
+        }
+    }
+
 }

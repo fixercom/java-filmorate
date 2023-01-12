@@ -15,4 +15,6 @@ public interface FilmDao extends FilmStorage {
     void deleteLike(Long filmId, Long userId);
 
     Set<Long> getUserIdsWhoLikedByFilmId(Long filmId);
+
+    void delete(long id);
 }

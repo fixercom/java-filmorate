@@ -64,4 +64,10 @@ public class FilmController {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return filmService.getTopFilms(count.orElse(10));
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.debug("Получен запрос на удаление фильма с ID {}", id);
+        filmService.delete(id);
+    }
 }
