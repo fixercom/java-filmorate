@@ -106,6 +106,7 @@ class FilmDaoImplTest {
                         .name("G")
                         .build())
                 .genres(new HashSet<>())
+                .directors(new HashSet<>())
                 .userIdsWhoLiked(new HashSet<>())
                 .build();
     }
