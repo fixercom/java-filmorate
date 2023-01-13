@@ -64,4 +64,12 @@ public class FilmController {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return filmService.getTopFilms(count.orElse(10));
     }
+
+    @GetMapping(value = "/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId,
+                                         @RequestParam Optional<String> sortBy,
+                                         HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getFilmsByDirector(directorId, sortBy.orElse(""));
+    }
 }
