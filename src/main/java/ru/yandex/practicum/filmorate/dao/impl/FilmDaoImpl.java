@@ -60,7 +60,6 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public Film updateFilm(Film film) {
-        filmCheck(film.getId());
         String sql = "UPDATE films SET film_name = ?, description = ?, release_date = ?," +
                 " duration = ?, mpa_id = ? WHERE film_id = ?";
         jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
@@ -70,30 +69,24 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public void createGenresForFilm(Long filmId, List<Integer> genreIds) {
-        filmCheck(filmId);
         String sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?,?)";
         genreIds.forEach(genreId -> jdbcTemplate.update(sql, filmId, genreId));
     }
 
     @Override
     public void deleteGenresForFilm(Long filmId) {
-        filmCheck(filmId);
         String sql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
     }
 
     @Override
     public void saveLike(Long filmId, Long userId) {
-        filmCheck(filmId);
-        userCheck(userId);
         String sql = "INSERT INTO likes (film_id, user_id) VALUES(?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
     }
 
     @Override
     public void deleteLike(Long filmId, Long userId) {
-        filmCheck(filmId);
-        userCheck(userId);
         String sql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, filmId, userId);
     }
@@ -119,24 +112,8 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public void delete(long id) {
-        filmCheck(id);
         String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, id);
     }
 
-    private void filmCheck(long filmId) {
-        String checkFilm = "select * from FILMS where FILM_ID = ?";
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(checkFilm, filmId);
-        if (!rs.next()) {
-            throw new NotFoundException("Film not found");
-        }
-    }
-
-    private void userCheck(long userId) {
-        String checkUser = "select * from USERS where USER_ID = ?";
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(checkUser, userId);
-        if (!rs.next()) {
-            throw new NotFoundException("User not found");
-        }
-    }
 }
