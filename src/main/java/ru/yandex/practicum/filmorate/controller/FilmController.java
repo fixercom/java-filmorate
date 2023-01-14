@@ -72,4 +72,11 @@ public class FilmController {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return filmService.getFilmsByDirector(directorId, sortBy.orElse(""));
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        filmService.delete(id);
+    }
+
 }

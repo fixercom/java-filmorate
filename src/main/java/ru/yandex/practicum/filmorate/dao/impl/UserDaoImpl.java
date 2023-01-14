@@ -100,6 +100,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getAllFriends(Long userId) {
+        getUserById(userId);
         String sql = "SELECT u.user_id, u.email, u.login, u.user_name, u.birthday" +
                 " FROM friends AS f JOIN users AS u ON f.friend_id = u.user_id WHERE  f.user_id  = ?";
         return jdbcTemplate.query(sql, this::mapRowToUser, userId);
@@ -120,4 +121,11 @@ public class UserDaoImpl implements UserDao {
                 .friends(friendDao.getFriendsForUser(resultSet.getLong("user_id")))
                 .build();
     }
+
+    @Override
+    public void delete(long id) {
+        String sql = "DELETE FROM USERS WHERE USER_ID = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
 }
