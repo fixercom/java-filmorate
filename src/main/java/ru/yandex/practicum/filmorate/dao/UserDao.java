@@ -19,4 +19,5 @@ public interface UserDao extends UserStorage {
     List<User> getAllFriends(Long userId);
 
     void delete(long id);
+    
 }
