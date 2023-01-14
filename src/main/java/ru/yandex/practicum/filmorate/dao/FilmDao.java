@@ -22,4 +22,6 @@ public interface FilmDao extends FilmStorage {
     List<Film> getFilmsByDirector(Long directorId);
 
     void deleteDirectorsForFilm(Long filmId);
+
+    void delete(long id);
 }

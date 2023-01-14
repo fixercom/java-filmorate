@@ -89,4 +89,9 @@ public class UserService {
             user.setName(user.getLogin());
         }
     }
+
+    public void delete(long id) {
+        userDao.delete(id);
+    }
+
 }

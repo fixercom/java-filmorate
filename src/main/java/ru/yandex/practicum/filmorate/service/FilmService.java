@@ -119,4 +119,9 @@ public class FilmService {
             return filmsForDirector;
         }
     }
+
+    public void delete(long id) {
+        filmDao.delete(id);
+    }
+
 }
