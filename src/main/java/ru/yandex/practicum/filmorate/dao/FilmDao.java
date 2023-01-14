@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao;
 
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
@@ -15,4 +16,10 @@ public interface FilmDao extends FilmStorage {
     void deleteLike(Long filmId, Long userId);
 
     Set<Long> getUserIdsWhoLikedByFilmId(Long filmId);
+
+    void createDirectorsForFilm(Long filmId, List<Long> directorIds);
+
+    List<Film> getFilmsByDirector(Long directorId);
+
+    void deleteDirectorsForFilm(Long filmId);
 }

@@ -6,7 +6,8 @@ create table IF NOT EXISTS FILMS
     DESCRIPTION  CHARACTER VARYING(500),
     RELEASE_DATE DATE NOT NULL,
     DURATION     INTEGER,
-    MPA_ID       INTEGER
+    MPA_ID       INTEGER,
+    DIRECTOR_ID  INTEGER
 );
 
 create table IF NOT EXISTS USERS
@@ -66,4 +67,23 @@ create table IF NOT EXISTS FRIENDS
         foreign key (USER_ID) references USERS,
     constraint "FRIENDS_USERS_FRIEND_ID_fk"
         foreign key (FRIEND_ID) references USERS
+);
+
+create table IF NOT EXISTS DIRECTORS
+(
+    DIRECTOR_ID INTEGER auto_increment NOT NULL
+        primary key,
+    DIRECTOR_NAME CHARACTER VARYING(50) NOT NULL
+);
+
+create table IF NOT EXISTS FILM_DIRECTORS
+(
+    FILM_ID  INTEGER NOT NULL,
+    DIRECTOR_ID INTEGER NOT NULL,
+    constraint "FILM_DIRECTORS_pk"
+    primary key (FILM_ID, DIRECTOR_ID),
+    constraint "FILM_DIRECTORS_FILMS_FILM_ID_fk"
+    foreign key (FILM_ID) references FILMS on delete cascade,
+    constraint "FILM_DIRECTORS_DIRECTORS_DIRECTOR_ID_fk"
+    foreign key (DIRECTOR_ID) references DIRECTORS on delete cascade
 );

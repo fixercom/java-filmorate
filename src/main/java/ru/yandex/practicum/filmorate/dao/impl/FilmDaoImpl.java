@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
@@ -24,6 +25,9 @@ public class FilmDaoImpl implements FilmDao {
     private final MpaDao mpaDao;
     @Qualifier("genreDaoImpl")
     private final GenreDao genreDao;
+
+    @Qualifier("directorDaoImpl")
+    private final DirectorDao directorDao;
 
     @Override
     public Film createFilm(Film film) {
@@ -96,6 +100,26 @@ public class FilmDaoImpl implements FilmDao {
         return new HashSet<>(jdbcTemplate.queryForList(sql, Long.class, filmId));
     }
 
+    @Override
+    public void createDirectorsForFilm(Long filmId, List<Long> directorIds) {
+        String sql = "INSERT INTO film_directors (film_id, director_id) VALUES (?,?)";
+        directorIds.forEach(directorId -> jdbcTemplate.update(sql, filmId, directorId));
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(Long directorId) {
+        String sql = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa_id" +
+                " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +
+                " WHERE  fd.director_id= ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public void deleteDirectorsForFilm(Long filmId) {
+        String sql = "DELETE FROM film_directors WHERE film_id = ?";
+        jdbcTemplate.update(sql, filmId);
+    }
+
     public Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
                 .id(resultSet.getLong("film_id"))
@@ -104,6 +128,7 @@ public class FilmDaoImpl implements FilmDao {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
                 .mpa(mpaDao.getMpaById(resultSet.getInt("mpa_id")))
+                .directors(directorDao.getDirectorsByFilmId(resultSet.getLong("film_id")))
                 .genres(genreDao.getGenresByFilmId(resultSet.getLong("film_id")))
                 .userIdsWhoLiked(getUserIdsWhoLikedByFilmId(resultSet.getLong("film_id")))
                 .build();

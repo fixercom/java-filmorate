@@ -23,6 +23,7 @@ public class Film {
     @Min(value = 0, message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
     private MPA mpa;
+    private Set<Director> directors;
     private Set<Genre> genres;
     private Set<Long> userIdsWhoLiked;
 }
