@@ -133,4 +133,11 @@ public class FilmDaoImpl implements FilmDao {
                 .userIdsWhoLiked(getUserIdsWhoLikedByFilmId(resultSet.getLong("film_id")))
                 .build();
     }
+
+    @Override
+    public void delete(long id) {
+        String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
 }
