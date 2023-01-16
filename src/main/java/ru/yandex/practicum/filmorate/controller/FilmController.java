@@ -64,4 +64,10 @@ public class FilmController {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return filmService.getTopFilms(count.orElse(10));
     }
+
+    @GetMapping(value = "/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }
