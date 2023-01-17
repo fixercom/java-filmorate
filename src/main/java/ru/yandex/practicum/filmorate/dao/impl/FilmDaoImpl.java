@@ -140,4 +140,14 @@ public class FilmDaoImpl implements FilmDao {
         jdbcTemplate.update(sql, id);
     }
 
+    @Override
+    public  List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sql = "SELECT F.* FROM FILMS AS F" +
+                " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
+                " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
+                " INNER JOIN (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F2 ON F1.FILM_ID = F2.FILM_ID)" +
+                " GROUP BY F.FILM_ID";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
 }

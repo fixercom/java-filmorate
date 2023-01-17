@@ -124,4 +124,12 @@ public class FilmService {
         filmDao.delete(id);
     }
 
+        public  List<Film> getCommonFilms(Long userId, Long friendId) {
+        List<Film> commonFilms = filmDao.getCommonFilms(userId, friendId).stream()
+                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
+                .collect(Collectors.toList());
+        log.debug("Для пользователя {} и {} считаны все общие фильмы: {}", userId, friendId, commonFilms);
+        return commonFilms;
+    }
+
 }
