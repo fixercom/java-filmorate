@@ -149,9 +149,6 @@ public class FilmService {
                 log.debug("Получен список фильмов с подстрокой {} в имени режиссёра или в названии фильма: {}", query, search);
                 break;
         }
-        search = search.stream()
-                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
-                .collect(Collectors.toList());
         return search;
     }
 

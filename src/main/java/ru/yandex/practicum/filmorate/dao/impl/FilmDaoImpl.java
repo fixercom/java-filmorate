@@ -153,7 +153,11 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public List<Film> getSearchByTitle(String query) {
         String fullQuery = "'%" + query + "%'";
-        String preSql = "SELECT * FROM FILMS WHERE LOWER(FILM_NAME) LIKE LOWER(%s)";
+        String preSql = "SELECT * FROM FILMS AS F" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(FILM_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
         String sql = String.format(preSql, fullQuery);
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
@@ -164,7 +168,10 @@ public class FilmDaoImpl implements FilmDao {
         String preSql = "SELECT F.* FROM FILMS AS F" +
                 " JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
                 " JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
-                " WHERE LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)";
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
         String sql = String.format(preSql, fullQuery);
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
@@ -175,8 +182,11 @@ public class FilmDaoImpl implements FilmDao {
         String preSql = "SELECT F.* FROM FILMS AS F" +
                 " LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
                 " LEFT JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
                 " WHERE LOWER(F.FILM_NAME) LIKE LOWER(%s)" +
-                " OR LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)";
+                " OR LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
         String sql = String.format(preSql, fullQuery, fullQuery);
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
