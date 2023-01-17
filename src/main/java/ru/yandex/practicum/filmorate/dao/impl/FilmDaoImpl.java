@@ -146,7 +146,8 @@ public class FilmDaoImpl implements FilmDao {
                 " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
                 " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
                 " INNER JOIN (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F2 ON F1.FILM_ID = F2.FILM_ID)" +
-                " GROUP BY F.FILM_ID";
+                " GROUP BY F.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
 
