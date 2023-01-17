@@ -84,4 +84,10 @@ public class FilmController {
         return filmService.getCommonFilms(userId, friendId);
     }
 
+    @GetMapping(value = "/search")
+    public List<Film> getFilmsBySearch(@RequestParam String query, @RequestParam String by, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getFilmsBySearch(query, by);
+    }
+
 }

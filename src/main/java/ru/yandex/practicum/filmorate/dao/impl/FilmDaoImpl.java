@@ -141,13 +141,44 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public  List<Film> getCommonFilms(Long userId, Long friendId) {
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
         String sql = "SELECT F.* FROM FILMS AS F" +
                 " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
                 " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
                 " INNER JOIN (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F2 ON F1.FILM_ID = F2.FILM_ID)" +
                 " GROUP BY F.FILM_ID";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
+    public List<Film> getSearchByTitle(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT * FROM FILMS WHERE LOWER(FILM_NAME) LIKE LOWER(%s)";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByDirector(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " WHERE LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByAll(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " LEFT JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " WHERE LOWER(F.FILM_NAME) LIKE LOWER(%s)" +
+                " OR LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)";
+        String sql = String.format(preSql, fullQuery, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
 }
