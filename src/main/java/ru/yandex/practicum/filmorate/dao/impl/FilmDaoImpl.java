@@ -151,6 +151,7 @@ public class FilmDaoImpl implements FilmDao {
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
 
+    @Override
     public List<Film> getFilmsRecommendFilmsForUsers(Long userId) {
         String sqlGetRecommendedFilmsIds = "SELECT DISTINCT film_id\n" +
                 " FROM likes " +
