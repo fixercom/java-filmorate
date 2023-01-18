@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -141,7 +142,7 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public  List<Film> getCommonFilms(Long userId, Long friendId) {
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
         String sql = "SELECT F.* FROM FILMS AS F" +
                 " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
                 " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
@@ -149,5 +150,34 @@ public class FilmDaoImpl implements FilmDao {
                 " GROUP BY F.FILM_ID";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
+
+    public List<Film> getFilmsRecommendFilmsForUsers(Long userId) {
+        String sqlGetRecommendedFilmsIds = "SELECT DISTINCT film_id\n" +
+                " FROM likes " +
+                " WHERE film_id NOT IN " +
+                "    (SELECT film_id " +
+                "     FROM likes " +
+                "     WHERE user_id = ?) " +
+                "  AND user_id IN " +
+                "    (SELECT user_id AS other_user_id, " +
+                "     FROM likes " +
+                "     WHERE film_id IN " +
+                "         (SELECT film_id " +
+                "          FROM likes " +
+                "          WHERE user_id = ?) " +
+                "     GROUP BY other_user_id " +
+                "     ORDER BY COUNT (film_id) DESC " +
+                "     LIMIT 10) ";
+        List<Long> filmsIds = jdbcTemplate.queryForList(sqlGetRecommendedFilmsIds, Long.class, userId
+                , userId);
+        return filmsIds.stream().map(x -> {
+            try {
+                return getFilmById(x);
+            } catch (NotFoundException e) {
+                return null;
+            }
+        }).collect(Collectors.toList());
+    }
+
 
 }
