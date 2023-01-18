@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.exception.LikeDoesNotExist;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyLikedThisFilm;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -82,13 +84,32 @@ public class FilmService {
 
     public void addLikeToFilm(Long filmId, Long userId) {
         userDao.getUserById(userId);
-        filmDao.saveLike(filmId, userId);
-        log.debug("Лайк пользователя с id={} добавлен для фильма с id={}, добавлена запись в таблицу likes", userId, filmId);
+        Film film = filmDao.getFilmById(filmId);
+        if (!(film.getUserIdsWhoLiked().contains(userId))) {
+            filmDao.saveLike(filmId, userId);
+            film.setRate(film.getRate() + 1);
+            filmDao.updateFilm(film);
+        } else {
+            String errorMessage = String.format("Пользователь с id=%d" +
+                    " уже поставил лайк фильму с id=%d", userId, filmId);
+            throw new UserAlreadyLikedThisFilm(errorMessage);
+        }
+        log.debug("Лайк пользователя с id={} добавлен для фильма с id={}," +
+                " добавлена запись в таблицу likes", userId, filmId);
     }
 
     public void removeLikeFromFilm(Long filmId, Long userId) {
         userDao.getUserById(userId);
-        filmDao.deleteLike(filmId, userId);
+        Film film = filmDao.getFilmById(filmId);
+        if (film.getUserIdsWhoLiked().contains(userId)) {
+            filmDao.deleteLike(filmId, userId);
+            film.setRate(film.getRate() - 1);
+            filmDao.updateFilm(film);
+        } else {
+            String errorMessage = String.format("Пользователь с id=%d" +
+                    " не ставил лайк фильму с id=%d", userId, filmId);
+            throw new LikeDoesNotExist(errorMessage);
+        }
         log.debug("Лайк пользователя с id={} удален для фильма с id={},  удалена запись в таблице  likes", userId, filmId);
     }
 
