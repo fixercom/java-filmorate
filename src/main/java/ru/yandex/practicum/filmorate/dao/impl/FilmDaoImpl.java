@@ -36,6 +36,7 @@ public class FilmDaoImpl implements FilmDao {
         parametersForFilmsTable.put("description", film.getDescription());
         parametersForFilmsTable.put("release_date", film.getReleaseDate());
         parametersForFilmsTable.put("duration", film.getDuration());
+        parametersForFilmsTable.put("rate", film.getRate());
         parametersForFilmsTable.put("mpa_id", film.getMpa().getId());
         Long filmId = new SimpleJdbcInsert(jdbcTemplate).withTableName("films")
                 .usingGeneratedKeyColumns("film_id")
@@ -64,9 +65,9 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public Film updateFilm(Film film) {
         String sql = "UPDATE films SET film_name = ?, description = ?, release_date = ?," +
-                " duration = ?, mpa_id = ? WHERE film_id = ?";
+                " duration = ?, rate = ?, mpa_id = ? WHERE film_id = ?";
         jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getMpa().getId(), film.getId());
+                film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         return getFilmById(film.getId());
     }
 
@@ -108,7 +109,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public List<Film> getFilmsByDirector(Long directorId) {
-        String sql = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa_id" +
+        String sql = "SELECT f.*" +
                 " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +
                 " WHERE  fd.director_id= ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
@@ -127,6 +128,7 @@ public class FilmDaoImpl implements FilmDao {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
+                .rate(resultSet.getInt("rate"))
                 .mpa(mpaDao.getMpaById(resultSet.getInt("mpa_id")))
                 .directors(directorDao.getDirectorsByFilmId(resultSet.getLong("film_id")))
                 .genres(genreDao.getGenresByFilmId(resultSet.getLong("film_id")))
