@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -192,6 +193,29 @@ public class FilmDaoImpl implements FilmDao {
                 " ORDER BY COUNT(L.FILM_ID) DESC";
         String sql = String.format(preSql, fullQuery, fullQuery);
         return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendFilmsForUsers(Long userId) {
+        String sqlGetRecommendedFilmsIds = "SELECT DISTINCT film_id\n" +
+                " FROM likes " +
+                " WHERE film_id NOT IN " +
+                "    (SELECT film_id " +
+                "     FROM likes " +
+                "     WHERE user_id = ?) " +
+                "  AND user_id IN " +
+                "    (SELECT user_id AS other_user_id, " +
+                "     FROM likes " +
+                "     WHERE film_id IN " +
+                "         (SELECT film_id " +
+                "          FROM likes " +
+                "          WHERE user_id = ?) " +
+                "     GROUP BY other_user_id " +
+                "     ORDER BY COUNT (film_id) DESC " +
+                "     LIMIT 10) ";
+        List<Long> filmsId = jdbcTemplate.queryForList(sqlGetRecommendedFilmsIds, Long.class, userId
+                , userId);
+        return filmsId.stream().map(this::getFilmById).collect(Collectors.toList());
     }
 
 }

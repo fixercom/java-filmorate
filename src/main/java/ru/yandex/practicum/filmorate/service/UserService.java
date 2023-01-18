@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.NotFriendException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -15,8 +17,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
     @Qualifier("userDaoImpl")
     private final UserDao userDao;
+
+    @Qualifier("filmDaoImpl")
+    private final FilmDao filmDao;
 
     public User createUser(User user) {
         initNameIfEmptyOrNullValue(user);
@@ -94,4 +100,7 @@ public class UserService {
         userDao.delete(id);
     }
 
+    public List<Film> recommendFilmsForUser(Long id) {
+        return filmDao.getFilmsRecommendFilmsForUsers(id);
+    }
 }
