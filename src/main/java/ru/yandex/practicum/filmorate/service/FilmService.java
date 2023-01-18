@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,12 +125,29 @@ public class FilmService {
         filmDao.delete(id);
     }
 
-        public  List<Film> getCommonFilms(Long userId, Long friendId) {
-        List<Film> commonFilms = filmDao.getCommonFilms(userId, friendId).stream()
-                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
-                .collect(Collectors.toList());
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        List<Film> commonFilms = filmDao.getCommonFilms(userId, friendId);
         log.debug("Для пользователя {} и {} считаны все общие фильмы: {}", userId, friendId, commonFilms);
         return commonFilms;
+    }
+
+    public List<Film> getFilmsBySearch(String query, String by) {
+        List<Film> search = Collections.emptyList();
+        switch (by) {
+            case "director":
+                search = filmDao.getSearchByDirector(query);
+                log.debug("Получен список фильмов с подстрокой {} в имени режиссёра: {}", query, search);
+                break;
+            case "title":
+                search = filmDao.getSearchByTitle(query);
+                log.debug("Получен список фильмов с подстрокой {} в названии фильма: {}", query, search);
+                break;
+            case "title,director":
+                search = filmDao.getSearchByAll(query);
+                log.debug("Получен список фильмов с подстрокой {} в имени режиссёра или в названии фильма: {}", query, search);
+                break;
+        }
+        return search;
     }
 
 }

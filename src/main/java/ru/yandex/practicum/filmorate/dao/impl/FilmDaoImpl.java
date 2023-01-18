@@ -147,7 +147,8 @@ public class FilmDaoImpl implements FilmDao {
                 " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
                 " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
                 " INNER JOIN (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F2 ON F1.FILM_ID = F2.FILM_ID)" +
-                " GROUP BY F.FILM_ID";
+                " GROUP BY F.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
 
@@ -180,5 +181,44 @@ public class FilmDaoImpl implements FilmDao {
         }).collect(Collectors.toList());
     }
 
+    public List<Film> getSearchByTitle(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT * FROM FILMS AS F" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(FILM_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByDirector(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByAll(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " LEFT JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(F.FILM_NAME) LIKE LOWER(%s)" +
+                " OR LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
 
 }
