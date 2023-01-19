@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -14,16 +16,23 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewDao reviewDao;
+    private final FeedDao feedDao;
 
     public Review addReview(Review review) {
-        return reviewDao.addReview(review);
+        review = reviewDao.addReview(review);
+        feedDao.addFeed(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
+        return review;
     }
 
     public Review updateReview(Review review) {
-        return reviewDao.updateReview(review);
+        review = reviewDao.updateReview(review);
+        feedDao.addFeed(review.getUserId(), "REVIEW", "UPDATE", review.getReviewId());
+        return review;
     }
 
     public void deleteReview(Long id) {
+        Review review = reviewDao.getReviewById(id);
+        feedDao.addFeed(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
         reviewDao.deleteReview(id);
     }
 

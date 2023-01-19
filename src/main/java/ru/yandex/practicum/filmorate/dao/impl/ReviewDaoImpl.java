@@ -29,9 +29,6 @@ public class ReviewDaoImpl implements ReviewDao {
     private final UserDao userDao;
     private final FilmDao filmDao;
 
-    @Qualifier("feedDaoImpl")
-    private final FeedDao feedDao;
-
     @Override
     public Review addReview(Review review) {
         userDao.getUserById(review.getUserId());
@@ -47,7 +44,6 @@ public class ReviewDaoImpl implements ReviewDao {
             stmt.setInt(5, 0);
             return stmt;
         }, keyHolder);
-        feedDao.addFeed(review.getUserId(), "REVIEW", "ADD", Objects.requireNonNull(keyHolder.getKey()).longValue());
         return getReviewById(Objects.requireNonNull(keyHolder.getKey()).longValue());
     }
 
@@ -55,7 +51,6 @@ public class ReviewDaoImpl implements ReviewDao {
     public Review updateReview(Review review) {
         String sql = "UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(), review.getReviewId());
-        feedDao.addFeed(review.getUserId(), "REVIEW", "UPDATE", review.getFilmId());
         return getReviewById(review.getReviewId());
     }
 
@@ -64,7 +59,6 @@ public class ReviewDaoImpl implements ReviewDao {
         Review review = getReviewById(id);
         String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, id);
-        feedDao.addFeed(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
     }
 
     @Override

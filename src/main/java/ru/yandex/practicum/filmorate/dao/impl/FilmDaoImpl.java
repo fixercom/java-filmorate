@@ -86,7 +86,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public void saveLike(Long filmId, Long userId) {
-        String sql = "INSERT INTO likes (film_id, user_id) VALUES(?, ?)";
+        String sql = "MERGE INTO likes (film_id, user_id) VALUES(?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
     }
 
@@ -204,7 +204,7 @@ public class FilmDaoImpl implements FilmDao {
                 "     FROM likes " +
                 "     WHERE user_id = ?) " +
                 "  AND user_id IN " +
-                "    (SELECT user_id AS other_user_id, " +
+                "    (SELECT user_id AS other_user_id " +
                 "     FROM likes " +
                 "     WHERE film_id IN " +
                 "         (SELECT film_id " +
