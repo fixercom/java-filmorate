@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.controller.handler.model.ErrorMessage;
-import ru.yandex.practicum.filmorate.exception.AlreadyAcceptFriendException;
-import ru.yandex.practicum.filmorate.exception.AlreadyInviteFriendException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.NotFriendException;
+import ru.yandex.practicum.filmorate.exception.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
@@ -61,6 +58,20 @@ public class GlobalExceptionHandler {
     public ErrorMessage handleNotFriendException(NotFriendException exception) {
         String message = exception.getMessage();
         log.warn("{}NotFriendException: {}{}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
+        return new ErrorMessage(200, message);
+    }
+
+    @ExceptionHandler(UserAlreadyLikedThisFilm.class)
+    public ErrorMessage handleUserAlreadyLikedThisFilmException(UserAlreadyLikedThisFilm exception) {
+        String message = exception.getMessage();
+        log.warn("{}UserAlreadyLikedThisFilmException: {}{}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
+        return new ErrorMessage(200, message);
+    }
+
+    @ExceptionHandler(LikeDoesNotExist.class)
+    public ErrorMessage handleLikeDoesNotExistException(LikeDoesNotExist exception) {
+        String message = exception.getMessage();
+        log.warn("{}LikeDoesNotExistException: {}{}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(200, message);
     }
 }
