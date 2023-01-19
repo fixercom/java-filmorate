@@ -108,3 +108,15 @@ create table IF NOT EXISTS REVIEW_LIKES
     constraint "REVIEW_LIKES_ID_USER_ID_pk"
     primary key (REVIEW_ID, USER_ID)
 );
+
+create table IF NOT EXISTS FEED
+(
+    "TIMESTAMP"   TIMESTAMP default CURRENT_TIMESTAMP,
+    "USER_ID"    INTEGER                 not null,
+    "EVENT_TYPE" CHARACTER VARYING       not null,
+    "OPERATION"   CHARACTER VARYING       not null,
+    "EVENT_ID"   INTEGER auto_increment  not null,
+    "ENTITY_ID"  INTEGER                  not null,
+    constraint "FEED_pk"
+        primary key ("EVENT_ID")
+);

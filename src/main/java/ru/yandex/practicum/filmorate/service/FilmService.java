@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.LikeDoesNotExist;
@@ -26,6 +27,9 @@ public class FilmService {
     private final FilmDao filmDao;
     @Qualifier("userDaoImpl")
     private final UserDao userDao;
+
+    @Qualifier("feedDaoImpl")
+    private final FeedDao feedDao;
 
     public Film addFilm(Film film) {
         Film createdFilm = filmDao.createFilm(film);
@@ -89,9 +93,11 @@ public class FilmService {
             filmDao.saveLike(filmId, userId);
             film.setRate(film.getRate() + 1);
             filmDao.updateFilm(film);
+            feedDao.addFeed(userId, "LIKE", "ADD", filmId);
         } else {
             String errorMessage = String.format("Пользователь с id=%d" +
                     " уже поставил лайк фильму с id=%d", userId, filmId);
+            feedDao.addFeed(userId, "LIKE", "ADD", filmId);
             throw new UserAlreadyLikedThisFilm(errorMessage);
         }
         log.debug("Лайк пользователя с id={} добавлен для фильма с id={}," +
@@ -105,6 +111,7 @@ public class FilmService {
             filmDao.deleteLike(filmId, userId);
             film.setRate(film.getRate() - 1);
             filmDao.updateFilm(film);
+            feedDao.addFeed(userId, "LIKE", "REMOVE", filmId);
         } else {
             String errorMessage = String.format("Пользователь с id=%d" +
                     " не ставил лайк фильму с id=%d", userId, filmId);

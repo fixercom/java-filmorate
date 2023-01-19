@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
@@ -28,6 +29,9 @@ public class ReviewDaoImpl implements ReviewDao {
     private final UserDao userDao;
     private final FilmDao filmDao;
 
+    @Qualifier("feedDaoImpl")
+    private final FeedDao feedDao;
+
     @Override
     public Review addReview(Review review) {
         userDao.getUserById(review.getUserId());
@@ -43,6 +47,7 @@ public class ReviewDaoImpl implements ReviewDao {
             stmt.setInt(5, 0);
             return stmt;
         }, keyHolder);
+        feedDao.addFeed(review.getUserId(), "REVIEW", "ADD", Objects.requireNonNull(keyHolder.getKey()).longValue());
         return getReviewById(Objects.requireNonNull(keyHolder.getKey()).longValue());
     }
 
@@ -50,13 +55,16 @@ public class ReviewDaoImpl implements ReviewDao {
     public Review updateReview(Review review) {
         String sql = "UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(), review.getReviewId());
+        feedDao.addFeed(review.getUserId(), "REVIEW", "UPDATE", review.getFilmId());
         return getReviewById(review.getReviewId());
     }
 
     @Override
     public void deleteReview(Long id) {
+        Review review = getReviewById(id);
         String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = ?";
         jdbcTemplate.update(sql, id);
+        feedDao.addFeed(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
     }
 
     @Override
@@ -88,6 +96,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "MERGE INTO REVIEW_LIKES (REVIEW_ID, USER_ID, IS_USEFUL) VALUES (?, ?, TRUE)";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
+       // feedDao.addFeed(userId, "LIKE", "ADD", id);
     }
 
     @Override
@@ -95,6 +104,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "MERGE INTO REVIEW_LIKES (REVIEW_ID, USER_ID, IS_USEFUL) VALUES (?, ?, FALSE)";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
+       // feedDao.addFeed(userId, "LIKE", "ADD", id);
     }
 
     @Override
@@ -102,6 +112,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND USER_ID = ? AND IS_USEFUL = TRUE";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
+       // feedDao.addFeed(userId, "LIKE", "REMOVE", id);
     }
 
     @Override
@@ -109,6 +120,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND USER_ID = ? AND IS_USEFUL = FALSE";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
+        //feedDao.addFeed(userId, "LIKE", "REMOVE", id);
     }
 
     private void updateUseful(Long id) {

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.NotFriendException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -23,6 +25,9 @@ public class UserService {
 
     @Qualifier("filmDaoImpl")
     private final FilmDao filmDao;
+
+    @Qualifier("feedDaoImpl")
+    private final FeedDao feedDao;
 
     public User createUser(User user) {
         initNameIfEmptyOrNullValue(user);
@@ -54,12 +59,14 @@ public class UserService {
         userDao.getUserById(friendId);
         if (userDao.userHasActiveInvitationFromFriend(userId, friendId)) {
             userDao.acceptFriendInvitation(userId, friendId);
+            feedDao.addFeed(friendId, "FRIEND", "ADD", userId);
             log.debug("Пользователь с id={} принял приглашение дружбы от пользователя с id={}, " +
                     "обновлена запись в таблице friends", friendId, userId);
         } else {
             log.debug("Пользователь с id={} отправил приглашение дружбы пользователю с id={}, " +
                     "добавлена запись в таблицу friends", userId, friendId);
             userDao.sendFriendInvitation(userId, friendId);
+            feedDao.addFeed(userId, "FRIEND", "ADD", friendId);
         }
     }
 
@@ -67,6 +74,7 @@ public class UserService {
         if (userDao.deleteFriend(userId, friendId)) {
             log.debug("Пользователь с id={} удален из друзей пользователя с id={}, " +
                     "удалена запись в таблице friends", friendId, userId);
+            feedDao.addFeed(userId, "FRIEND", "REMOVE", friendId);
         } else {
             throw new NotFriendException("Пользователи не являются друзьями");
         }
@@ -97,10 +105,13 @@ public class UserService {
     }
 
     public void delete(long id) {
+        feedDao.deleteFeed(id);
         userDao.delete(id);
     }
 
     public List<Film> recommendFilmsForUser(Long id) {
         return filmDao.getFilmsRecommendFilmsForUsers(id);
     }
+
+    public List<Feed> getFeed(long id){return feedDao.getFeed(id);}
 }
