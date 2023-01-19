@@ -109,10 +109,34 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public List<Film> getFilmsByDirector(Long directorId) {
+    public List<Film> getFilmsByDirectorWithoutSorting(Long directorId) {
         String sql = "SELECT f.*" +
                 " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +
                 " WHERE  fd.director_id= ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortByLikes(Long directorId) {
+        String sql = "SELECT films.*" +
+                " FROM films" +
+                " WHERE film_id IN (" +
+                "    SELECT film_id" +
+                "    FROM film_directors" +
+                "    WHERE director_id = ?)" +
+                "ORDER BY rate DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortByYear(Long directorId) {
+        String sql = "SELECT films.*" +
+                " FROM films" +
+                " WHERE film_id IN (" +
+                "    SELECT film_id" +
+                "    FROM film_directors" +
+                "    WHERE director_id = ?)" +
+                "ORDER BY release_date";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 
