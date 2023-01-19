@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class FilmDaoImpl implements FilmDao {
         parametersForFilmsTable.put("description", film.getDescription());
         parametersForFilmsTable.put("release_date", film.getReleaseDate());
         parametersForFilmsTable.put("duration", film.getDuration());
+        parametersForFilmsTable.put("rate", film.getRate());
         parametersForFilmsTable.put("mpa_id", film.getMpa().getId());
         Long filmId = new SimpleJdbcInsert(jdbcTemplate).withTableName("films")
                 .usingGeneratedKeyColumns("film_id")
@@ -64,9 +66,9 @@ public class FilmDaoImpl implements FilmDao {
     @Override
     public Film updateFilm(Film film) {
         String sql = "UPDATE films SET film_name = ?, description = ?, release_date = ?," +
-                " duration = ?, mpa_id = ? WHERE film_id = ?";
+                " duration = ?, rate = ?, mpa_id = ? WHERE film_id = ?";
         jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getMpa().getId(), film.getId());
+                film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         return getFilmById(film.getId());
     }
 
@@ -108,7 +110,7 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public List<Film> getFilmsByDirector(Long directorId) {
-        String sql = "SELECT f.film_id, f.film_name, f.description, f.release_date, f.duration, f.mpa_id" +
+        String sql = "SELECT f.*" +
                 " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +
                 " WHERE  fd.director_id= ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
@@ -127,6 +129,7 @@ public class FilmDaoImpl implements FilmDao {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getInt("duration"))
+                .rate(resultSet.getInt("rate"))
                 .mpa(mpaDao.getMpaById(resultSet.getInt("mpa_id")))
                 .directors(directorDao.getDirectorsByFilmId(resultSet.getLong("film_id")))
                 .genres(genreDao.getGenresByFilmId(resultSet.getLong("film_id")))
@@ -138,6 +141,81 @@ public class FilmDaoImpl implements FilmDao {
     public void delete(long id) {
         String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sql = "SELECT F.* FROM FILMS AS F" +
+                " LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID" +
+                " WHERE F.FILM_ID IN (SELECT DISTINCT F2.FILM_ID FROM (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F1" +
+                " INNER JOIN (SELECT LIKES.FILM_ID FROM LIKES WHERE USER_ID = ?) AS F2 ON F1.FILM_ID = F2.FILM_ID)" +
+                " GROUP BY F.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
+    public List<Film> getSearchByTitle(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT * FROM FILMS AS F" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(FILM_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByDirector(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getSearchByAll(String query) {
+        String fullQuery = "'%" + query + "%'";
+        String preSql = "SELECT F.* FROM FILMS AS F" +
+                " LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +
+                " LEFT JOIN DIRECTORS AS D ON D.DIRECTOR_ID = FD.DIRECTOR_ID" +
+                " LEFT JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID" +
+                " WHERE LOWER(F.FILM_NAME) LIKE LOWER(%s)" +
+                " OR LOWER(D.DIRECTOR_NAME) LIKE LOWER(%s)" +
+                " GROUP BY L.FILM_ID" +
+                " ORDER BY COUNT(L.FILM_ID) DESC";
+        String sql = String.format(preSql, fullQuery, fullQuery);
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
+    public List<Film> getFilmsRecommendFilmsForUsers(Long userId) {
+        String sqlGetRecommendedFilmsIds = "SELECT DISTINCT film_id\n" +
+                " FROM likes " +
+                " WHERE film_id NOT IN " +
+                "    (SELECT film_id " +
+                "     FROM likes " +
+                "     WHERE user_id = ?) " +
+                "  AND user_id IN " +
+                "    (SELECT user_id AS other_user_id, " +
+                "     FROM likes " +
+                "     WHERE film_id IN " +
+                "         (SELECT film_id " +
+                "          FROM likes " +
+                "          WHERE user_id = ?) " +
+                "     GROUP BY other_user_id " +
+                "     ORDER BY COUNT (film_id) DESC " +
+                "     LIMIT 10) ";
+        List<Long> filmsId = jdbcTemplate.queryForList(sqlGetRecommendedFilmsIds, Long.class, userId
+                , userId);
+        return filmsId.stream().map(this::getFilmById).collect(Collectors.toList());
     }
 
 }

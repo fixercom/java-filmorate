@@ -53,7 +53,6 @@ public class FilmController {
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeLikeFromFilm(@PathVariable Long id, @PathVariable Long userId, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         filmService.removeLikeFromFilm(id, userId);
@@ -77,6 +76,18 @@ public class FilmController {
     public void delete(@PathVariable long id, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         filmService.delete(id);
+    }
+
+    @GetMapping(value = "/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping(value = "/search")
+    public List<Film> getFilmsBySearch(@RequestParam String query, @RequestParam String by, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getFilmsBySearch(query, by);
     }
 
 }

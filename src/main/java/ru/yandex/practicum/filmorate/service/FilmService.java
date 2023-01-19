@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.exception.LikeDoesNotExist;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyLikedThisFilm;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -81,13 +84,32 @@ public class FilmService {
 
     public void addLikeToFilm(Long filmId, Long userId) {
         userDao.getUserById(userId);
-        filmDao.saveLike(filmId, userId);
-        log.debug("Лайк пользователя с id={} добавлен для фильма с id={}, добавлена запись в таблицу likes", userId, filmId);
+        Film film = filmDao.getFilmById(filmId);
+        if (!(film.getUserIdsWhoLiked().contains(userId))) {
+            filmDao.saveLike(filmId, userId);
+            film.setRate(film.getRate() + 1);
+            filmDao.updateFilm(film);
+        } else {
+            String errorMessage = String.format("Пользователь с id=%d" +
+                    " уже поставил лайк фильму с id=%d", userId, filmId);
+            throw new UserAlreadyLikedThisFilm(errorMessage);
+        }
+        log.debug("Лайк пользователя с id={} добавлен для фильма с id={}," +
+                " добавлена запись в таблицу likes", userId, filmId);
     }
 
     public void removeLikeFromFilm(Long filmId, Long userId) {
         userDao.getUserById(userId);
-        filmDao.deleteLike(filmId, userId);
+        Film film = filmDao.getFilmById(filmId);
+        if (film.getUserIdsWhoLiked().contains(userId)) {
+            filmDao.deleteLike(filmId, userId);
+            film.setRate(film.getRate() - 1);
+            filmDao.updateFilm(film);
+        } else {
+            String errorMessage = String.format("Пользователь с id=%d" +
+                    " не ставил лайк фильму с id=%d", userId, filmId);
+            throw new LikeDoesNotExist(errorMessage);
+        }
         log.debug("Лайк пользователя с id={} удален для фильма с id={},  удалена запись в таблице  likes", userId, filmId);
     }
 
@@ -122,6 +144,31 @@ public class FilmService {
 
     public void delete(long id) {
         filmDao.delete(id);
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        List<Film> commonFilms = filmDao.getCommonFilms(userId, friendId);
+        log.debug("Для пользователя {} и {} считаны все общие фильмы: {}", userId, friendId, commonFilms);
+        return commonFilms;
+    }
+
+    public List<Film> getFilmsBySearch(String query, String by) {
+        List<Film> search = Collections.emptyList();
+        switch (by) {
+            case "director":
+                search = filmDao.getSearchByDirector(query);
+                log.debug("Получен список фильмов с подстрокой {} в имени режиссёра: {}", query, search);
+                break;
+            case "title":
+                search = filmDao.getSearchByTitle(query);
+                log.debug("Получен список фильмов с подстрокой {} в названии фильма: {}", query, search);
+                break;
+            case "title,director":
+                search = filmDao.getSearchByAll(query);
+                log.debug("Получен список фильмов с подстрокой {} в имени режиссёра или в названии фильма: {}", query, search);
+                break;
+        }
+        return search;
     }
 
 }
