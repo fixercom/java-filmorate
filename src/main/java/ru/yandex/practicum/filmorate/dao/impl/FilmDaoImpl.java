@@ -109,6 +109,19 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
+    public List<Film> getTopFilms(Integer count) {
+        String sql = "SELECT films.*" +
+                " FROM films" +
+                " LEFT JOIN (" +
+                "     SELECT film_id, count (user_id) AS rating" +
+                "     FROM likes" +
+                "     GROUP BY film_id) AS joined_table ON films.film_id = joined_table.film_id" +
+                " ORDER BY rating DESC" +
+                " LIMIT VALUES (?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
     public List<Film> getFilmsByDirectorWithoutSorting(Long directorId) {
         String sql = "SELECT f.*" +
                 " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +

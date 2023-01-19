@@ -120,10 +120,7 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(Integer count) {
-        List<Film> topFilms = filmDao.getAllFilms().stream()
-                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> topFilms = filmDao.getTopFilms(count);
         log.debug("Топ фильмов с ограничением в {} шт. получен", count);
         return topFilms;
     }
