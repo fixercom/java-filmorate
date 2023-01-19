@@ -96,7 +96,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "MERGE INTO REVIEW_LIKES (REVIEW_ID, USER_ID, IS_USEFUL) VALUES (?, ?, TRUE)";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
-       // feedDao.addFeed(userId, "LIKE", "ADD", id);
+        // feedDao.addFeed(userId, "LIKE", "ADD", id);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "MERGE INTO REVIEW_LIKES (REVIEW_ID, USER_ID, IS_USEFUL) VALUES (?, ?, FALSE)";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
-       // feedDao.addFeed(userId, "LIKE", "ADD", id);
+        // feedDao.addFeed(userId, "LIKE", "ADD", id);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class ReviewDaoImpl implements ReviewDao {
         String sql = "DELETE FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND USER_ID = ? AND IS_USEFUL = TRUE";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
-       // feedDao.addFeed(userId, "LIKE", "REMOVE", id);
+        // feedDao.addFeed(userId, "LIKE", "REMOVE", id);
     }
 
     @Override

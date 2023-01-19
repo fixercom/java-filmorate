@@ -113,5 +113,7 @@ public class UserService {
         return filmDao.getFilmsRecommendFilmsForUsers(id);
     }
 
-    public List<Feed> getFeed(long id){return feedDao.getFeed(id);}
+    public List<Feed> getFeed(long id) {
+        return feedDao.getFeed(id);
+    }
 }
