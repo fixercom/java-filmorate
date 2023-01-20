@@ -37,7 +37,7 @@ public class FilmDaoImpl implements FilmDao {
         parametersForFilmsTable.put("description", film.getDescription());
         parametersForFilmsTable.put("release_date", film.getReleaseDate());
         parametersForFilmsTable.put("duration", film.getDuration());
-        parametersForFilmsTable.put("rate", film.getRate());
+        parametersForFilmsTable.put("rate", 0);
         parametersForFilmsTable.put("mpa_id", film.getMpa().getId());
         Long filmId = new SimpleJdbcInsert(jdbcTemplate).withTableName("films")
                 .usingGeneratedKeyColumns("film_id")
@@ -109,10 +109,43 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public List<Film> getFilmsByDirector(Long directorId) {
+    public List<Film> getTopFilms(Integer count) {
+        String sql = "SELECT *" +
+                " FROM films" +
+                " ORDER BY rate DESC" +
+                " LIMIT VALUES (?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorWithoutSorting(Long directorId) {
         String sql = "SELECT f.*" +
                 " FROM films AS f JOIN film_directors AS fd ON f.film_id = fd.film_id" +
                 " WHERE  fd.director_id= ?";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortByLikes(Long directorId) {
+        String sql = "SELECT films.*" +
+                " FROM films" +
+                " WHERE film_id IN (" +
+                "    SELECT film_id" +
+                "    FROM film_directors" +
+                "    WHERE director_id = ?)" +
+                "ORDER BY rate DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorSortByYear(Long directorId) {
+        String sql = "SELECT films.*" +
+                " FROM films" +
+                " WHERE film_id IN (" +
+                "    SELECT film_id" +
+                "    FROM film_directors" +
+                "    WHERE director_id = ?)" +
+                "ORDER BY release_date";
         return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 

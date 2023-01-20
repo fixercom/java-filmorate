@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +56,8 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         Long filmId = film.getId();
+        Film filmBeforeUpdate = filmDao.getFilmById(filmId);
+        film.setRate(filmBeforeUpdate.getRate());
         filmDao.updateFilm(film);
         log.debug("Фильм с id={} обновлен в таблице films", filmId);
         filmDao.deleteGenresForFilm(filmId);
@@ -121,32 +122,25 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(Integer count) {
-        List<Film> topFilms = filmDao.getAllFilms().stream()
-                .sorted((film1, film2) -> film2.getUserIdsWhoLiked().size() - film1.getUserIdsWhoLiked().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> topFilms = filmDao.getTopFilms(count);
         log.debug("Топ фильмов с ограничением в {} шт. получен", count);
         return topFilms;
     }
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
-        List<Film> filmsForDirector = filmDao.getFilmsByDirector(directorId);
+        List<Film> filmsForDirector;
+        if (sortBy.equals("year")) {
+            filmsForDirector = filmDao.getFilmsByDirectorSortByYear(directorId);
+        } else if (sortBy.equals("likes")) {
+            filmsForDirector = filmDao.getFilmsByDirectorSortByLikes(directorId);
+        } else {
+            filmsForDirector = filmDao.getFilmsByDirectorWithoutSorting(directorId);
+        }
         if (filmsForDirector.isEmpty()) {
             throw new NotFoundException("В базе данных отсутствуют фильмы данного режиссера");
-        } else if (sortBy.equals("year")) {
-            log.debug("Получен список фильмов режиссера с id={} c сортировкой по году", directorId);
-            return filmsForDirector.stream()
-                    .sorted(Comparator.comparing(Film::getReleaseDate))
-                    .collect(Collectors.toList());
-        } else if (sortBy.equals("likes")) {
-            log.debug("Получен список фильмов режиссера с id={} с сортировкой по лайкам", directorId);
-            return filmsForDirector.stream()
-                    .sorted(Comparator.comparingInt(film -> film.getUserIdsWhoLiked().size()))
-                    .collect(Collectors.toList());
-        } else {
-            log.debug("Получен список фильмов режиссера с id={}", directorId);
-            return filmsForDirector;
         }
+        log.debug("Получен список фильмов для режиссера с id={}", directorId);
+        return filmsForDirector;
     }
 
     public void delete(long id) {

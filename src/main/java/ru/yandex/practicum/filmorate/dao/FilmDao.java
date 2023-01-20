@@ -19,7 +19,13 @@ public interface FilmDao extends FilmStorage {
 
     void createDirectorsForFilm(Long filmId, List<Long> directorIds);
 
-    List<Film> getFilmsByDirector(Long directorId);
+    List<Film> getTopFilms(Integer count);
+
+    List<Film> getFilmsByDirectorWithoutSorting(Long directorId);
+
+    List<Film> getFilmsByDirectorSortByLikes(Long directorId);
+
+    List<Film> getFilmsByDirectorSortByYear(Long directorId);
 
     void deleteDirectorsForFilm(Long filmId);
 
