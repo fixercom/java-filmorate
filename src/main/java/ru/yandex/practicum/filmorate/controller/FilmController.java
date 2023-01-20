@@ -59,9 +59,12 @@ public class FilmController {
     }
 
     @GetMapping(value = "/popular")
-    public List<Film> getTopFilms(@RequestParam Optional<Integer> count, HttpServletRequest request) {
+    public List<Film> getTopFilms(@RequestParam Optional<Integer> count,
+                                  @RequestParam Optional<Integer> genreId,
+                                  @RequestParam Optional<Integer> year,
+                                  HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        return filmService.getTopFilms(count.orElse(10));
+        return filmService.getTopFilms(count.orElse(10), genreId, year);
     }
 
     @GetMapping(value = "/director/{directorId}")

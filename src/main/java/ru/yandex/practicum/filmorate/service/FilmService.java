@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -172,4 +173,18 @@ public class FilmService {
         return search;
     }
 
+    public List<Film> getTopFilms(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
+        List<Film> topFilms;
+        if (genreId.isPresent() && year.isPresent()) {
+            topFilms = filmDao.getTopFilmsByGenreAndYear(count, genreId.get(), year.get());
+        } else if (genreId.isPresent()) {
+            topFilms = filmDao.getTopFilmsByGenre(count, genreId.get());
+        } else if (year.isPresent()) {
+            topFilms = filmDao.getTopFilmsByYear(count, year.get());
+        } else {
+            topFilms = filmDao.getTopFilms(count);
+        }
+        log.debug("Топ фильмов с ограничением в {} шт. получен", count);
+        return topFilms;
+    }
 }
