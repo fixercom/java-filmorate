@@ -40,4 +40,10 @@ public interface FilmDao extends FilmStorage {
     List<Film> getSearchByAll(String query);
 
     List<Film> getFilmsRecommendFilmsForUsers(Long id);
+
+    List<Film> getTopFilmsByGenreAndYear(Integer count, Integer genreId, Integer year);
+
+    List<Film> getTopFilmsByGenre(Integer count, Integer genreId);
+
+    List<Film> getTopFilmsByYear(Integer count, Integer year);
 }

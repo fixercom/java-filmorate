@@ -251,4 +251,41 @@ public class FilmDaoImpl implements FilmDao {
         return filmsId.stream().map(this::getFilmById).collect(Collectors.toList());
     }
 
+    @Override
+    public List<Film> getTopFilmsByGenreAndYear(Integer count, Integer genreId, Integer year) {
+        String sql = "SELECT *" +
+                " FROM films" +
+                " WHERE film_id IN(" +
+                "    SELECT film_id" +
+                "    FROM film_genres" +
+                "    WHERE genre_id = ?)" +
+                "    AND EXTRACT(YEAR FROM CAST(release_date AS DATE)) = ?" +
+                " ORDER BY rate" +
+                " LIMIT VALUES (?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsByGenre(Integer count, Integer genreId) {
+        String sql = "SELECT *" +
+                " FROM films" +
+                " WHERE film_id IN(" +
+                "    SELECT film_id" +
+                "    FROM film_genres" +
+                "    WHERE genre_id = ?)" +
+                " ORDER BY rate" +
+                " LIMIT VALUES (?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsByYear(Integer count, Integer year) {
+        String sql = "SELECT *" +
+                " FROM films" +
+                " WHERE EXTRACT(YEAR FROM CAST(release_date AS DATE)) = ?" +
+                " ORDER BY rate" +
+                " LIMIT VALUES (?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+    }
+
 }
