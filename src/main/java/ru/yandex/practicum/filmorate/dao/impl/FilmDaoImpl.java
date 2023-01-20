@@ -37,7 +37,7 @@ public class FilmDaoImpl implements FilmDao {
         parametersForFilmsTable.put("description", film.getDescription());
         parametersForFilmsTable.put("release_date", film.getReleaseDate());
         parametersForFilmsTable.put("duration", film.getDuration());
-        parametersForFilmsTable.put("rate", film.getRate());
+        parametersForFilmsTable.put("rate", 0);
         parametersForFilmsTable.put("mpa_id", film.getMpa().getId());
         Long filmId = new SimpleJdbcInsert(jdbcTemplate).withTableName("films")
                 .usingGeneratedKeyColumns("film_id")
@@ -110,13 +110,9 @@ public class FilmDaoImpl implements FilmDao {
 
     @Override
     public List<Film> getTopFilms(Integer count) {
-        String sql = "SELECT films.*" +
+        String sql = "SELECT *" +
                 " FROM films" +
-                " LEFT JOIN (" +
-                "     SELECT film_id, count (user_id) AS rating" +
-                "     FROM likes" +
-                "     GROUP BY film_id) AS joined_table ON films.film_id = joined_table.film_id" +
-                " ORDER BY rating DESC" +
+                " ORDER BY rate DESC" +
                 " LIMIT VALUES (?)";
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }

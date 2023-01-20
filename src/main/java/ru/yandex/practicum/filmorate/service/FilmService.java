@@ -56,6 +56,8 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         Long filmId = film.getId();
+        Film filmBeforeUpdate = filmDao.getFilmById(filmId);
+        film.setRate(filmBeforeUpdate.getRate());
         filmDao.updateFilm(film);
         log.debug("Фильм с id={} обновлен в таблице films", filmId);
         filmDao.deleteGenresForFilm(filmId);
