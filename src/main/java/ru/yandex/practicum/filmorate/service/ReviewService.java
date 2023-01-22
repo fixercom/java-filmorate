@@ -18,19 +18,19 @@ public class ReviewService {
 
     public Review addReview(Review review) {
         review = reviewDao.addReview(review);
-        feedDao.addFeed(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
+        feedDao.addEventForUser(review.getUserId(), "REVIEW", "ADD", review.getReviewId());
         return review;
     }
 
     public Review updateReview(Review review) {
         review = reviewDao.updateReview(review);
-        feedDao.addFeed(review.getUserId(), "REVIEW", "UPDATE", review.getReviewId());
+        feedDao.addEventForUser(review.getUserId(), "REVIEW", "UPDATE", review.getReviewId());
         return review;
     }
 
     public void deleteReview(Long id) {
         Review review = reviewDao.getReviewById(id);
-        feedDao.addFeed(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
+        feedDao.addEventForUser(review.getUserId(), "REVIEW", "REMOVE", review.getReviewId());
         reviewDao.deleteReview(id);
     }
 

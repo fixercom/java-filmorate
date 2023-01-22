@@ -90,9 +90,9 @@ public class FilmService {
             filmDao.saveLike(filmId, userId);
             film.setRate(film.getRate() + 1);
             filmDao.updateFilm(film);
-            feedDao.addFeed(userId, "LIKE", "ADD", filmId);
+            feedDao.addEventForUser(userId, "LIKE", "ADD", filmId);
         } else {
-            feedDao.addFeed(userId, "LIKE", "ADD", filmId);
+            feedDao.addEventForUser(userId, "LIKE", "ADD", filmId);
             throw new UserAlreadyLikedThisFilm(userId, filmId);
         }
         log.debug("Лайк пользователя с id={} добавлен для фильма с id={}," +
@@ -106,7 +106,7 @@ public class FilmService {
             filmDao.deleteLike(filmId, userId);
             film.setRate(film.getRate() - 1);
             filmDao.updateFilm(film);
-            feedDao.addFeed(userId, "LIKE", "REMOVE", filmId);
+            feedDao.addEventForUser(userId, "LIKE", "REMOVE", filmId);
         } else {
             throw new LikeDoesNotExist(filmId, userId);
         }
@@ -129,7 +129,7 @@ public class FilmService {
         return filmsForDirector;
     }
 
-    public void delete(long id) {
+    public void deleteFilm(long id) {
         filmDao.delete(id);
     }
 
@@ -151,7 +151,7 @@ public class FilmService {
                 log.debug("Получен список фильмов с подстрокой {} в названии фильма: {}", query, search);
                 break;
             case "title,director":
-                search = filmDao.getSearchByAll(query);
+                search = filmDao.getSearchByDirectorAndTitle(query);
                 log.debug("Получен список фильмов с подстрокой {} в имени режиссёра или в названии фильма: {}", query, search);
                 break;
         }

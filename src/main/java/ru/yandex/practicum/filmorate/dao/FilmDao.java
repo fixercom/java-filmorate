@@ -37,7 +37,7 @@ public interface FilmDao extends FilmStorage {
 
     List<Film> getSearchByDirector(String query);
 
-    List<Film> getSearchByAll(String query);
+    List<Film> getSearchByDirectorAndTitle(String query);
 
     List<Film> getFilmsRecommendFilmsForUsers(Long id);
 

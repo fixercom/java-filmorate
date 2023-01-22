@@ -208,7 +208,7 @@ public class FilmDaoImpl implements FilmDao {
     }
 
     @Override
-    public List<Film> getSearchByAll(String query) {
+    public List<Film> getSearchByDirectorAndTitle(String query) {
         String fullQuery = "'%" + query + "%'";
         String preSql = "SELECT F.* FROM FILMS AS F" +
                 " LEFT JOIN FILM_DIRECTORS AS FD ON F.FILM_ID = FD.FILM_ID" +

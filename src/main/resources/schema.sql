@@ -109,7 +109,7 @@ create table IF NOT EXISTS REVIEW_LIKES
     primary key (REVIEW_ID, USER_ID)
 );
 
-create table IF NOT EXISTS FEED
+create table IF NOT EXISTS EVENTS
 (
     "TIMESTAMP"   TIMESTAMP default CURRENT_TIMESTAMP,
     "USER_ID"    INTEGER                 not null,
