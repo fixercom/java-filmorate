@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -10,7 +9,7 @@ import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.ResultSet;
@@ -22,12 +21,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
-    @Qualifier("mpaDaoImpl")
     private final MpaDao mpaDao;
-    @Qualifier("genreDaoImpl")
     private final GenreDao genreDao;
-
-    @Qualifier("directorDaoImpl")
     private final DirectorDao directorDao;
 
     @Override
@@ -52,8 +47,7 @@ public class FilmDaoImpl implements FilmDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует фильм с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new FilmNotFoundException(id);
         }
     }
 

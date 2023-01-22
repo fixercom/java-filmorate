@@ -18,11 +18,18 @@ public class GlobalExceptionHandler {
     private static final String YELLOW_COLOR_LOG = "\033[33m";
     private static final String ORIGINAL_COLOR_LOG = "\033[0m";
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler({NotFoundException.class,
+            DirectorNotFoundException.class,
+            FilmNotFoundException.class,
+            GenreNotFoundException.class,
+            MpaNotFoundException.class,
+            ReviewNotFoundException.class,
+            UserNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage handleNotFoundException(NotFoundException exception) {
+    public ErrorMessage handleNotFoundException(RuntimeException exception) {
         String message = exception.getMessage();
-        log.warn("{}NotFoundException: {} {}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
+        log.warn("{}{}: {} {}", YELLOW_COLOR_LOG,
+                exception.getClass().getSimpleName(), ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(404, message);
     }
 
@@ -50,7 +57,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyAcceptFriendException.class)
     public ErrorMessage handleAlreadyAcceptFriendException(AlreadyAcceptFriendException exception) {
         String message = exception.getMessage();
-        log.warn("EXCEPTION/AlreadyAcceptFriendException[{}]: {}", 200, message);
+        log.warn("{}AlreadyAcceptFriendException:{} {}", YELLOW_COLOR_LOG, ORIGINAL_COLOR_LOG, message);
         return new ErrorMessage(200, message);
     }
 

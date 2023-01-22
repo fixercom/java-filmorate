@@ -8,13 +8,11 @@ import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewService {
-
     private final ReviewDao reviewDao;
     private final FeedDao feedDao;
 

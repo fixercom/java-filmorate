@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +10,7 @@ import ru.yandex.practicum.filmorate.dao.FriendDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.AlreadyAcceptFriendException;
 import ru.yandex.practicum.filmorate.exception.AlreadyInviteFriendException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
@@ -23,9 +22,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class UserDaoImpl implements UserDao {
-
     private final JdbcTemplate jdbcTemplate;
-    @Qualifier("friendDaoImpl")
     private final FriendDao friendDao;
 
     @Override
@@ -47,7 +44,7 @@ public class UserDaoImpl implements UserDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
         } catch (DataAccessException e) {
-            throw new NotFoundException("В базе данных отсутствует пользователь с id=" + id);
+            throw new UserNotFoundException(id);
         }
     }
 
@@ -70,7 +67,7 @@ public class UserDaoImpl implements UserDao {
             String status = jdbcTemplate.queryForObject(sql, String.class, friendId, userId);
             assert status != null;
             if (status.equals("CONFIRMED")) {
-                throw new AlreadyAcceptFriendException("Приглашение дружбы уже принято");
+                throw new AlreadyAcceptFriendException(userId, friendId);
             }
             return true;
         } catch (DataAccessException e) {
@@ -83,8 +80,7 @@ public class UserDaoImpl implements UserDao {
         try {
             jdbcTemplate.update(sql, userId, friendId, "UNCONFIRMED");
         } catch (DuplicateKeyException e) {
-            throw new AlreadyInviteFriendException(
-                    "Приглашение в друзъя уже отправлено для пользователя с id=" + friendId);
+            throw new AlreadyInviteFriendException(userId, friendId);
         }
     }
 

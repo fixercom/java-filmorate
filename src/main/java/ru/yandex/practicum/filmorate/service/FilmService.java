@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
@@ -23,12 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmService {
-    @Qualifier("filmDaoImpl")
     private final FilmDao filmDao;
-    @Qualifier("userDaoImpl")
     private final UserDao userDao;
-
-    @Qualifier("feedDaoImpl")
     private final FeedDao feedDao;
 
     public Film addFilm(Film film) {
@@ -97,10 +92,8 @@ public class FilmService {
             filmDao.updateFilm(film);
             feedDao.addFeed(userId, "LIKE", "ADD", filmId);
         } else {
-            String errorMessage = String.format("Пользователь с id=%d" +
-                    " уже поставил лайк фильму с id=%d", userId, filmId);
             feedDao.addFeed(userId, "LIKE", "ADD", filmId);
-            throw new UserAlreadyLikedThisFilm(errorMessage);
+            throw new UserAlreadyLikedThisFilm(userId, filmId);
         }
         log.debug("Лайк пользователя с id={} добавлен для фильма с id={}," +
                 " добавлена запись в таблицу likes", userId, filmId);
@@ -115,17 +108,9 @@ public class FilmService {
             filmDao.updateFilm(film);
             feedDao.addFeed(userId, "LIKE", "REMOVE", filmId);
         } else {
-            String errorMessage = String.format("Пользователь с id=%d" +
-                    " не ставил лайк фильму с id=%d", userId, filmId);
-            throw new LikeDoesNotExist(errorMessage);
+            throw new LikeDoesNotExist(filmId, userId);
         }
         log.debug("Лайк пользователя с id={} удален для фильма с id={},  удалена запись в таблице  likes", userId, filmId);
-    }
-
-    public List<Film> getTopFilms(Integer count) {
-        List<Film> topFilms = filmDao.getTopFilms(count);
-        log.debug("Топ фильмов с ограничением в {} шт. получен", count);
-        return topFilms;
     }
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {

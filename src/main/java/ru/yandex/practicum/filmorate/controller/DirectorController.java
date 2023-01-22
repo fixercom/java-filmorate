@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -17,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class DirectorController {
-    @Qualifier("directorService")
     private final DirectorService directorService;
 
     @PostMapping
