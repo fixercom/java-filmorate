@@ -88,6 +88,6 @@ public class UserController {
     @GetMapping(value = "/{id}/feed")
     public List<Feed> getFeed(@PathVariable Long id, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        return userService.getFeed(id);
+        return userService.getAllFeedsForUser(id);
     }
 }

@@ -69,7 +69,7 @@ public class UserService {
                     "удалена запись в таблице friends", friendId, userId);
             feedDao.addFeed(userId, "FRIEND", "REMOVE", friendId);
         } else {
-            throw new NotFriendException("Пользователи не являются друзьями");
+            throw new NotFriendException(userId, friendId);
         }
     }
 
@@ -106,7 +106,8 @@ public class UserService {
         return filmDao.getFilmsRecommendFilmsForUsers(id);
     }
 
-    public List<Feed> getFeed(long id) {
+    public List<Feed> getAllFeedsForUser(long id) {
+        userDao.getUserById(id);
         return feedDao.getFeed(id);
     }
 }

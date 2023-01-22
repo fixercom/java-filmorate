@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.dao.DirectorDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.ResultSet;
@@ -47,8 +47,7 @@ public class FilmDaoImpl implements FilmDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует фильм с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new FilmNotFoundException(id);
         }
     }
 

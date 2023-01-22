@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.DirectorDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.sql.ResultSet;
@@ -37,8 +37,7 @@ public class DirectorDaoImpl implements DirectorDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToDirector, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует режиссер с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new DirectorNotFoundException(id);
         }
     }
 

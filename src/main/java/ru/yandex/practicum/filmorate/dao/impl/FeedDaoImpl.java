@@ -2,12 +2,9 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FeedDao;
-import ru.yandex.practicum.filmorate.dao.UserDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
 
 import java.sql.ResultSet;
@@ -19,7 +16,6 @@ import java.util.List;
 @Slf4j
 public class FeedDaoImpl implements FeedDao {
     private final JdbcTemplate jdbcTemplate;
-    private final UserDao userDao;
 
     @Override
     public void addFeed(Long userId, String eventType, String operation, Long entityId) {
@@ -30,13 +26,7 @@ public class FeedDaoImpl implements FeedDao {
     @Override
     public List<Feed> getFeed(Long userId) {
         String sql = "SELECT * FROM FEED WHERE USER_ID = ?";
-        try {
-            userDao.getUserById(userId);
-            return jdbcTemplate.query(sql, this::mapRowToFeed, userId);
-        } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует пользователь с id=%d", userId);
-            throw new NotFoundException(errorMessage);
-        }
+        return jdbcTemplate.query(sql, this::mapRowToFeed, userId);
     }
 
     @Override

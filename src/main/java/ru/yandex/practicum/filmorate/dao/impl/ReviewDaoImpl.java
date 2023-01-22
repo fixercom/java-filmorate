@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
@@ -63,8 +63,7 @@ public class ReviewDaoImpl implements ReviewDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToReview, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует отзыв с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new ReviewNotFoundException(id);
         }
     }
 
