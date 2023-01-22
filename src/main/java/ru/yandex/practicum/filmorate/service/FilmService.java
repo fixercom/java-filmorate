@@ -117,12 +117,6 @@ public class FilmService {
         log.debug("Лайк пользователя с id={} удален для фильма с id={},  удалена запись в таблице  likes", userId, filmId);
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        List<Film> topFilms = filmDao.getTopFilms(count);
-        log.debug("Топ фильмов с ограничением в {} шт. получен", count);
-        return topFilms;
-    }
-
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> filmsForDirector;
         if (sortBy.equals("year")) {
