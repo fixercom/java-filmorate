@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -13,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class GenreService {
-    @Qualifier("genreDaoImpl")
     private final GenreDao genreDao;
 
     public Genre getGenreById(Integer id) {

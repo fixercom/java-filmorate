@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
@@ -19,14 +18,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-
-    @Qualifier("userDaoImpl")
     private final UserDao userDao;
-
-    @Qualifier("filmDaoImpl")
     private final FilmDao filmDao;
-
-    @Qualifier("feedDaoImpl")
     private final FeedDao feedDao;
 
     public User createUser(User user) {

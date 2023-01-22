@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,9 +22,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class UserDaoImpl implements UserDao {
-
     private final JdbcTemplate jdbcTemplate;
-    @Qualifier("friendDaoImpl")
     private final FriendDao friendDao;
 
     @Override

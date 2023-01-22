@@ -14,7 +14,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class FriendDaoImpl implements FriendDao {
-
     private final JdbcTemplate jdbcTemplate;
 
     public List<Friend> getFriendsForUser(Long userId) {

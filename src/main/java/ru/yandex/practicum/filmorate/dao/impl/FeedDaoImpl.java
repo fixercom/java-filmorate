@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -19,10 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class FeedDaoImpl implements FeedDao {
-
     private final JdbcTemplate jdbcTemplate;
-
-    @Qualifier("userDaoImpl")
     private final UserDao userDao;
 
     @Override

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -22,12 +21,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmDaoImpl implements FilmDao {
     private final JdbcTemplate jdbcTemplate;
-    @Qualifier("mpaDaoImpl")
     private final MpaDao mpaDao;
-    @Qualifier("genreDaoImpl")
     private final GenreDao genreDao;
-
-    @Qualifier("directorDaoImpl")
     private final DirectorDao directorDao;
 
     @Override

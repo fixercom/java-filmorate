@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.ReviewDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
@@ -24,7 +22,6 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class ReviewDaoImpl implements ReviewDao {
-
     private final JdbcTemplate jdbcTemplate;
     private final UserDao userDao;
     private final FilmDao filmDao;
