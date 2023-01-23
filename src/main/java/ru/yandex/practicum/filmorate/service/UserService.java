@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.dao.FeedDao;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.NotFriendException;
-import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -52,14 +52,14 @@ public class UserService {
         userDao.getUserById(friendId);
         if (userDao.userHasActiveInvitationFromFriend(userId, friendId)) {
             userDao.acceptFriendInvitation(userId, friendId);
-            feedDao.addFeed(friendId, "FRIEND", "ADD", userId);
+            feedDao.addEventForUser(friendId, "FRIEND", "ADD", userId);
             log.debug("Пользователь с id={} принял приглашение дружбы от пользователя с id={}, " +
                     "обновлена запись в таблице friends", friendId, userId);
         } else {
             log.debug("Пользователь с id={} отправил приглашение дружбы пользователю с id={}, " +
                     "добавлена запись в таблицу friends", userId, friendId);
             userDao.sendFriendInvitation(userId, friendId);
-            feedDao.addFeed(userId, "FRIEND", "ADD", friendId);
+            feedDao.addEventForUser(userId, "FRIEND", "ADD", friendId);
         }
     }
 
@@ -67,7 +67,7 @@ public class UserService {
         if (userDao.deleteFriend(userId, friendId)) {
             log.debug("Пользователь с id={} удален из друзей пользователя с id={}, " +
                     "удалена запись в таблице friends", friendId, userId);
-            feedDao.addFeed(userId, "FRIEND", "REMOVE", friendId);
+            feedDao.addEventForUser(userId, "FRIEND", "REMOVE", friendId);
         } else {
             throw new NotFriendException(userId, friendId);
         }
@@ -97,17 +97,17 @@ public class UserService {
         }
     }
 
-    public void delete(long id) {
-        feedDao.deleteFeed(id);
-        userDao.delete(id);
+    public void deleteUser(long id) {
+        feedDao.deleteFeedForUser(id);
+        userDao.deleteUser(id);
     }
 
-    public List<Film> recommendFilmsForUser(Long id) {
+    public List<Film> getRecommendFilmsForUser(Long id) {
         return filmDao.getFilmsRecommendFilmsForUsers(id);
     }
 
-    public List<Feed> getAllFeedsForUser(long id) {
+    public List<Event> getFeedForUser(long id) {
         userDao.getUserById(id);
-        return feedDao.getFeed(id);
+        return feedDao.getFeedForUser(id);
     }
 }

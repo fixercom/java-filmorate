@@ -74,9 +74,9 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id, HttpServletRequest request) {
+    public void deleteFilm(@PathVariable long id, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        filmService.delete(id);
+        filmService.deleteFilm(id);
     }
 
     @GetMapping(value = "/common")
