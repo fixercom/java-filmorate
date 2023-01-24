@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmController {
-    @Qualifier("filmService")
     private final FilmService filmService;
 
     @PostMapping
@@ -53,15 +51,44 @@ public class FilmController {
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeLikeFromFilm(@PathVariable Long id, @PathVariable Long userId, HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         filmService.removeLikeFromFilm(id, userId);
     }
 
     @GetMapping(value = "/popular")
-    public List<Film> getTopFilms(@RequestParam Optional<Integer> count, HttpServletRequest request) {
+    public List<Film> getTopFilms(@RequestParam Optional<Integer> count,
+                                  @RequestParam Optional<Integer> genreId,
+                                  @RequestParam Optional<Integer> year,
+                                  HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
-        return filmService.getTopFilms(count.orElse(10));
+        return filmService.getTopFilms(count.orElse(10), genreId, year);
     }
+
+    @GetMapping(value = "/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Long directorId,
+                                         @RequestParam Optional<String> sortBy,
+                                         HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getFilmsByDirector(directorId, sortBy.orElse(""));
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable long id, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        filmService.deleteFilm(id);
+    }
+
+    @GetMapping(value = "/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping(value = "/search")
+    public List<Film> getFilmsBySearch(@RequestParam String query, @RequestParam String by, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return filmService.getFilmsBySearch(query, by);
+    }
+
 }

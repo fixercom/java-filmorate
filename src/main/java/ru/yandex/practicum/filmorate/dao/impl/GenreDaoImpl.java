@@ -5,7 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
@@ -25,8 +25,7 @@ public class GenreDaoImpl implements GenreDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует жанр с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new GenreNotFoundException(id);
         }
     }
 

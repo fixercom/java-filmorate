@@ -6,6 +6,7 @@ create table IF NOT EXISTS FILMS
     DESCRIPTION  CHARACTER VARYING(500),
     RELEASE_DATE DATE NOT NULL,
     DURATION     INTEGER,
+    RATE         INTEGER,
     MPA_ID       INTEGER
 );
 
@@ -42,7 +43,7 @@ create table IF NOT EXISTS FILM_GENRES
     constraint "FILM_GENRES_pk"
         primary key (FILM_ID, GENRE_ID),
     constraint "FILM_GENRES_FILMS_FILM_ID_fk"
-        foreign key (FILM_ID) references FILMS
+        foreign key (FILM_ID) references FILMS on delete cascade
 );
 
 create table IF NOT EXISTS LIKES
@@ -52,7 +53,7 @@ create table IF NOT EXISTS LIKES
     constraint "LIKES_pk"
         primary key (FILM_ID, USER_ID),
     constraint "LIKES_FILMS_FILM_ID_fk"
-        foreign key (FILM_ID) references FILMS
+        foreign key (FILM_ID) references FILMS on delete cascade
 );
 
 create table IF NOT EXISTS FRIENDS
@@ -63,7 +64,59 @@ create table IF NOT EXISTS FRIENDS
     constraint FRIENDS_PK
         primary key (USER_ID, FRIEND_ID),
     constraint "FRIENDS_USERS_USER_ID_fk"
-        foreign key (USER_ID) references USERS,
+        foreign key (USER_ID) references USERS on delete cascade,
     constraint "FRIENDS_USERS_FRIEND_ID_fk"
-        foreign key (FRIEND_ID) references USERS
+        foreign key (FRIEND_ID) references USERS on delete cascade
+);
+
+create table IF NOT EXISTS DIRECTORS
+(
+    DIRECTOR_ID INTEGER auto_increment NOT NULL
+        primary key,
+    DIRECTOR_NAME CHARACTER VARYING(50) NOT NULL
+);
+
+create table IF NOT EXISTS FILM_DIRECTORS
+(
+    FILM_ID  INTEGER NOT NULL,
+    DIRECTOR_ID INTEGER NOT NULL,
+    constraint "FILM_DIRECTORS_pk"
+    primary key (FILM_ID, DIRECTOR_ID),
+    constraint "FILM_DIRECTORS_FILMS_FILM_ID_fk"
+    foreign key (FILM_ID) references FILMS on delete cascade,
+    constraint "FILM_DIRECTORS_DIRECTORS_DIRECTOR_ID_fk"
+    foreign key (DIRECTOR_ID) references DIRECTORS on delete cascade
+);
+
+create table IF  NOT EXISTS REVIEWS
+(
+    REVIEW_ID INTEGER auto_increment NOT NULL,
+    CONTENT VARCHAR(500) NOT NULL,
+    IS_POSITIVE BOOLEAN NOT NULL,
+    USER_ID INTEGER NOT NULL,
+    FILM_ID INTEGER NOT NULL,
+    USEFUL INTEGER NOT NULL,
+    constraint "REVIEWS_pk"
+    primary key (REVIEW_ID)
+);
+
+create table IF NOT EXISTS REVIEW_LIKES
+(
+    REVIEW_ID INTEGER NOT NULL,
+    USER_ID INTEGER NOT NULL,
+    IS_USEFUL BOOLEAN,
+    constraint "REVIEW_LIKES_ID_USER_ID_pk"
+    primary key (REVIEW_ID, USER_ID)
+);
+
+create table IF NOT EXISTS EVENTS
+(
+    "TIMESTAMP"   TIMESTAMP default CURRENT_TIMESTAMP,
+    "USER_ID"    INTEGER                 not null,
+    "EVENT_TYPE" CHARACTER VARYING       not null,
+    "OPERATION"   CHARACTER VARYING       not null,
+    "EVENT_ID"   INTEGER auto_increment  not null,
+    "ENTITY_ID"  INTEGER                  not null,
+    constraint "FEED_pk"
+        primary key ("EVENT_ID")
 );

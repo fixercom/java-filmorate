@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FeedDao;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.NotFriendException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -15,8 +18,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    @Qualifier("userDaoImpl")
     private final UserDao userDao;
+    private final FilmDao filmDao;
+    private final FeedDao feedDao;
 
     public User createUser(User user) {
         initNameIfEmptyOrNullValue(user);
@@ -48,12 +52,14 @@ public class UserService {
         userDao.getUserById(friendId);
         if (userDao.userHasActiveInvitationFromFriend(userId, friendId)) {
             userDao.acceptFriendInvitation(userId, friendId);
+            feedDao.addEventForUser(friendId, "FRIEND", "ADD", userId);
             log.debug("Пользователь с id={} принял приглашение дружбы от пользователя с id={}, " +
                     "обновлена запись в таблице friends", friendId, userId);
         } else {
             log.debug("Пользователь с id={} отправил приглашение дружбы пользователю с id={}, " +
                     "добавлена запись в таблицу friends", userId, friendId);
             userDao.sendFriendInvitation(userId, friendId);
+            feedDao.addEventForUser(userId, "FRIEND", "ADD", friendId);
         }
     }
 
@@ -61,8 +67,9 @@ public class UserService {
         if (userDao.deleteFriend(userId, friendId)) {
             log.debug("Пользователь с id={} удален из друзей пользователя с id={}, " +
                     "удалена запись в таблице friends", friendId, userId);
+            feedDao.addEventForUser(userId, "FRIEND", "REMOVE", friendId);
         } else {
-            throw new NotFriendException("Пользователи не являются друзьями");
+            throw new NotFriendException(userId, friendId);
         }
     }
 
@@ -88,5 +95,19 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+    }
+
+    public void deleteUser(long id) {
+        feedDao.deleteFeedForUser(id);
+        userDao.deleteUser(id);
+    }
+
+    public List<Film> getRecommendFilmsForUser(Long id) {
+        return filmDao.getFilmsRecommendFilmsForUsers(id);
+    }
+
+    public List<Event> getFeedForUser(long id) {
+        userDao.getUserById(id);
+        return feedDao.getFeedForUser(id);
     }
 }

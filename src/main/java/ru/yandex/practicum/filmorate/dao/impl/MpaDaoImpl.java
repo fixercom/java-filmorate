@@ -5,7 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.sql.ResultSet;
@@ -23,8 +23,7 @@ public class MpaDaoImpl implements MpaDao {
         try {
             return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, id);
         } catch (DataAccessException e) {
-            String errorMessage = String.format("В базе данных отсутствует MPA с id=%d", id);
-            throw new NotFoundException(errorMessage);
+            throw new MpaNotFoundException(id);
         }
     }
 

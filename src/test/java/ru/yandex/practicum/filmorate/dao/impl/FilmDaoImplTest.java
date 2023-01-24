@@ -101,11 +101,13 @@ class FilmDaoImplTest {
                 .description("From lush jungles to the gorgeous reefs…")
                 .releaseDate(LocalDate.of(2022, 12, 16))
                 .duration(192)
+                .rate(0)
                 .mpa(MPA.builder()
                         .id(1)
                         .name("G")
                         .build())
                 .genres(new HashSet<>())
+                .directors(new HashSet<>())
                 .userIdsWhoLiked(new HashSet<>())
                 .build();
     }

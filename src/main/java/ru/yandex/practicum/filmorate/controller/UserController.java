@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -69,5 +71,23 @@ public class UserController {
                                        HttpServletRequest request) {
         log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable long id, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        userService.deleteUser(id);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendFilmsForUser(@PathVariable Long id, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return userService.getRecommendFilmsForUser(id);
+    }
+
+    @GetMapping(value = "/{id}/feed")
+    public List<Event> getFeedForUser(@PathVariable Long id, HttpServletRequest request) {
+        log.debug("Получен {} запрос {}", request.getMethod(), request.getRequestURI());
+        return userService.getFeedForUser(id);
     }
 }
